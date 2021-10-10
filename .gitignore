@@ -1,0 +1,26 @@
+# '*' => cualquier archivo en el repositorio con esa extension
+#archivos comprimidos
+*.mp4
+*.mp3
+*.jpg
+*.png
+*.ico
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+#bases de datos
+*.sql
+
+#configuracion y cache
+config.py
+# '/' => en relaccion a la ubicacion de .gitignore
+/__pycache__
+/api/__pycache__
+/api/.vscode
