@@ -1,5 +1,6 @@
 from flask import Flask , jsonify, request
-from flask_cors import CORS,cross_origin
+import flask
+from flask_cors import CORS
 from flaskext.mysql import MySQL
 from config import config
 
@@ -8,13 +9,15 @@ cors = CORS(app)
 mysql = MySQL(  )
 mysql.init_app(app)
 
+def getCursor():
+        con = mysql.connect()
+        return con.cursor()
 
 #consulta especialidades
-@app.route('/especialidades/', methods=["GET"])
+@app.route('/especialidades/', methods=['GET'])
 def VerEspecialidades():
         try:
-                con = mysql.connect()
-                cursor = con.cursor()
+                cursor = getCursor()
                 consulta = "select * from Especialidad"
                 cursor.execute(consulta)
                 datos = cursor.fetchall()
@@ -36,11 +39,26 @@ def VerEspecialidades():
 
 # consultar dato especifico por URL 
 # 0.0.0.0:5000/especialidades/1 => especialidad con id == 1
-@app.route('/especialidades/<codigo>', methods=["GET"])
+@app.route('/especialidades/<codigo>', methods=['GET'])
 def VerEspecialidad(codigo):
+        if request.headers['Host'] == '192.168.1.107:5000':
+           print("ok.")    
+
+        # bool + obj [true,user]
+        #user = getUser(request.headers["Authorization"])
+
+        """
+        if user["esMedico"] == True:
+           #redireccionar
+           pass
+        elif user["esMedico"] == False:
+                #error
+                pass
+        """
+        
+
         try:
-                con = mysql.connect()
-                cursor = con.cursor()
+                cursor = getCursor()
                 consulta = "select * from Especialidad where idEspecialidad = {0}".format(codigo)
                 cursor.execute(consulta)
                 datos = cursor.fetchone()
@@ -50,16 +68,20 @@ def VerEspecialidad(codigo):
                         return jsonify({'especialidades':espe,'mensaje':"especialidades mostradas."})
                 else:
                         return jsonify({'mensaje':'Especialidad no encontrado'})
+
         except Exception as ex:
                 return jsonify({'mensaje':'Error (Get One): {0}'.format(ex)})
 
 # ingresar una especialidad
-@app.route('/especialidades', methods=["POST"])
+@app.route('/especialidades/', methods=['POST'])
 def GuardarEspecialidad():
         try:
                 con = mysql.connect()
                 cursor = con.cursor()
                 #request.json['idEspecialidad'],
+                #print(request.json)
+                #print(request.get_json(force=True))
+                
                 consulta = "insert into Especialidad(nombre) values  ('{0}')".format(request.json['nombre'])
                 cursor.execute(consulta)
                 con.commit()
@@ -68,8 +90,12 @@ def GuardarEspecialidad():
         except Exception as ex:
                 return jsonify({'mensaje':'Error (Insert): {0}'.format(ex)})
 
+
+
+
+
 # borrar una especialidad
-@app.route('/especialidades/<codigo>', methods=["DELETE"])
+@app.route('/especialidades/<codigo>', methods=['DELETE'])
 def BorrarEspecialidad(codigo):
         try:
                 con = mysql.connect()
@@ -83,7 +109,7 @@ def BorrarEspecialidad(codigo):
                 return jsonify({'mensaje':'Error (Delete): {0}'.format(ex)})
 
 # actualiza una especialidad
-@app.route('/especialidades/<codigo>', methods=["PUT"])
+@app.route('/especialidades/<codigo>', methods=['PUT'])
 def ActualizarEspecialidad(codigo):
         try:
                 con = mysql.connect()
@@ -104,8 +130,7 @@ def NotFoundView(error):
 
 if __name__ == "__main__":
         #importa un archivo de configuracion
-        app.config.from_object(config['development'])
-        app.config['CORS_HEADERS'] = 'Content-Type'
+        app.config.from_object(config['develop'])
         
         #en caso de error 404 llama a NotFoundView()
         app.register_error_handler(404,NotFoundView)

@@ -1,4 +1,9 @@
-const url = "http://3.15.139.183:5000/especialidades/";
+//const url = "http://3.15.139.183:5000/especialidades/";
+const url = "http://192.168.1.107:5000/especialidades/";
+
+
+
+
 //const url = "https://employeedetails.free.beeceptor.com/my/api/path";
 
 //funcion asincronica que obtiene la info de la api y la muestra por consola
@@ -13,15 +18,18 @@ async function getapi(url) {
 
     //muestra la data por consola
     console.log(data);
+    
     if (response) {
         hideloader();
     }
     show(data);
 }
 
-// Calling that async function
+
+//llama a la funcion para recibir los datos de especialidades de la base de datos
 getapi(url);
 
+//algo que hace como una pantalla de carga creo
 function hideloader() {
     document.getElementById('loading').style.display = 'none';
 }
