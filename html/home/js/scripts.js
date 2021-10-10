@@ -5,3 +5,11 @@
 */
 // This file is intentionally blank
 // Use this file to add JavaScript to your project
+
+fetch('/especialidades/')
+.then(function (response) {
+    return response.json();
+}).then(function (text) {
+    console.log('GET response:');
+    console.log(text.especialidades); 
+});
