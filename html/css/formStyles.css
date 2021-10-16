@@ -3,69 +3,83 @@
 	padding: 0;
 	box-sizing: border-box;
 }
-body{
+
+html{
 	background-image: url('../images/fondito3.jpg');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: cover;
+	height: 100vh;
 }
+
 .general{
 	width: 400px;
-	background: #ffffff;
-	padding: 30px;
-	margin: auto;
-	margin-top: 50px;
 	border-radius: 4px;
+	box-shadow: 10px 10px 20px rgb(101, 144, 173);
+
+	padding: 30px;
+	margin: 50px auto;
+
 	font-family: 'calibri';
 	color: rgb(46, 46, 46);
-	box-shadow: 10px 10px 20px rgb(101, 144, 173);
+	
+	background: #ffffff;
 }
 
-.general h2{
+.titulo{
 	font-size: 22px;
-	margin-bottom: 20px; 
+	font-weight: bold;
 	text-align: center;
+	margin-bottom: 22px;
+	
 	color: rgb(65, 65, 65);
 }
-.Inputs{
+
+.Inputs input,select{
 	width: 100%;
-	background: #d8eef5;
-	padding: 10px;
 	border-radius: 4px;
-	margin-bottom: 16px;
+	
+	padding: 10px;
 	border: 1px solid #ffffff;
+	margin: 8px auto;
+	
 	font-family: 'calibri';
 	font-size: 18px;
+	
+	background: #d8eef5;
 }
 
-.general p{
-	height: 40px;
+.cliqueable{
 	text-align: center;
 	font-size: 18px;
+	
+	margin: 8px auto;
 }
 
-.general a{
+.cliqueable a{
 	color: rgb(68, 116, 248);
 	text-decoration: none;
 }
-.general a:hover{
+
+.cliqueable a:hover{
 	color: rgb(103, 44, 212);
 	text-decoration: underline;
 }
 
 .botones{
 	width: 100%;
-	background: #60c7c1;
-	border: none;
+	
 	padding: 12px;
+	border: none;
+	margin: 8px 0;
+	
 	color: white;
-	margin: 16px 0;
 	font-size: 16px;
+	
+	background: #60c7c1;
 }
 
 .botones:hover{
 	background: #58b4bb;
-}
-
-.condiciones{
-    margin: 0 auto;
-    position: relative;
-	text-align: center;
 }

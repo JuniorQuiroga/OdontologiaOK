@@ -112,10 +112,11 @@ def get_obra_social():
     return jsonify(obras_sociales)
 
 
-
-#en caso de error 404 muestra esto
+# ERROR 404 -----------------------------------------------------------
 def NotFoundView(error):
     return "<h1>La pagina a la que intenta acceder no existe</h1>",404
+
+
 
 if __name__ == "__main__":
     #importa un archivo de configuracion

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<link rel="stylesheet" href="../css/formStyles.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="../css/formStyles.css">
 		<script type="text/javascript" src="send_register.js"></script>
 		<script type="text/javascript" src="get_obra_social.js"></script>
 	</head>
@@ -10,77 +10,81 @@
 	<body>
 		
 		<div class="general">
-			<p>Registrarse</p>
-			<div class= "inputBasico">
-				<form id='form'>
+			<div class = "titulo">
+				<span>Registrarse</span>
+			</div>
 
-					<input 	required type="text" class="Inputs" name="nombre"
+			<form id='form'>
+				<div class="Inputs">
+
+					<input 	required type="text"  name="nombre"
 							placeholder="Nombre"
 							autocomplete="name"
 							pattern="[A-Za-z]{1,}"
 							maxlength=100>
 							
-					<input 	required type="text" class="Inputs" name="apellido"
+					<input 	required type="text"  name="apellido"
 							placeholder="Apellido"
 							pattern="[A-Za-z]{1,}"
 							maxlength=100>
 							
-					<input 	required type="email" class="Inputs" name="email"
+					<input 	required type="email"  name="email"
 							autocomplete="email"
 							placeholder="Correo electr&#243;nico"
 							pattern="[a-zA-Z0-9]{1,}@[a-zA-Z.-]{1,}[.]{1}[a-zA-Z]{1,}"
 							maxlength=100>
-
-					<input	required type="password" class="Inputs" name="contrasenia"
+	
+					<input	required type="password" name="contrasenia"
 							autocomplete="current-password"
 							placeholder="Contrase&#241;a"
 							pattern="[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]{8,}"
 							maxlength=50 minlength=8>
 					
-					<input 	required type="text" class="Inputs" name="dni"
+					<input 	required type="text" name="dni"
 							placeholder="DNI"
 							pattern="\d{8}"
 							
 							value="64543123">
 							
-					<input 	required type="text" class="Inputs" name="telefono"
+					<input 	required type="text" name="telefono"
 							placeholder="Tel&#233;fono"
 							pattern="\d{10}" 
 							
 							value="1164321245">
 							
-					<input 	required type="text" class="Inputs" name="direccion"
+					<input 	required type="text" name="direccion"
 							placeholder="Direcci&#243;n"
 							pattern="[A-Za-z0-9.\s]{1,}"
 							maxlength=50
 							
 							value="av. miserere 124">
 					
-					<div>
-						<select required class="Inputs" name="obra_social" id="obra_social">
+					<div >
+						<select required name="obra_social" id="obra_social">
 							<option value="false" placeholder="Obra social"></option>
 						</select>
 					</div>
-					
-					<label>
-						<p>
-							<input required type="checkbox" required="required"> Acepto los 
-							<a href="condiciones.html">
-								terminos de uso y politicas de privacidad
-							</a>
-						</p>
-					</label>
-					
-					<p>
-						&iquest;Ya tienes una cuenta?
-						<a href="../login/login.html">
-							Inicia sesi&#243;n
-						</a> 
-					</p>
-					
-					<button type="submit" class="botones">Registrarse</button>
-				</form>
-			</div>  
+				
+				</div>
+				<div class ="cliqueable">
+					<input required type="checkbox"> 
+					<span>Acepto los</span> 
+					<a href="condiciones.html">
+						terminos de uso y politicas de privacidad
+					</a>
+				</div>
+				
+				<button type="submit" class="botones">Registrarse</button>
+
+				<div class="cliqueable">
+					<span>&iquest;Ya tienes una cuenta?</span>
+					<a href="../login/login.html">
+						Inicia sesi&#243;n
+					</a> 
+				</div>
+				
+				
+			</form>
 		</div>
 	</body>
 </html>

@@ -1,0 +1,73 @@
+body{
+    font-family: arial, helvetica;
+    background: #e8e8e8;
+    background-image: url('descarga.jfif');
+}
+
+
+
+header{
+    width: 100%;
+    background: #4e94ab;
+}
+#btn-menu{
+    display: none;
+}
+header label{
+    display: block;
+    width: 30px;
+    height: 30px;
+    height: 30px;
+    padding: 10px;
+    border-right: 1px solid #fff;
+}
+
+.menu{
+    list-style: none;
+    padding: 0;
+    background: #4e94ab;
+    width: 90%;
+    max-width: 1000px;
+    margin: auto;
+}
+.menu u1{
+    margin: 0;
+    list-style: none;
+    padding: 0;
+    display: flex;
+
+}
+.menu li a{
+    text-decoration: none;
+    color: white;
+    padding: 15px 20px;
+    display: block;
+}
+
+.menu li{
+    display: inline-block;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.menu li a:hover{
+    background: rgba(0, 0, 0, 0.3);
+}
+
+@media(max-width:768px){
+    header label{
+        display: block;
+    }
+    menu{
+        position: absolute;
+        background: #4e94ab;
+        width: 70%;
+        margin-left: -70%;
+    }
+    .menu u1{
+        flex-direction: column;
+    }
+    .menu li{
+        border-top: 1px solid #fff;
+    }
+}
