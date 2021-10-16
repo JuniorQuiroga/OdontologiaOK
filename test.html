@@ -31,12 +31,112 @@
                 <input type="text" name="nombre" id="nombre">
             </div>
 
+            <div>
+                <label>numero telefonico</label>
+                <input type="text" name="numero" id="numero" pattern="[0-9]{10}">
+            </div>
+
+            <div>
+                <label>numero papaia</label>
+                <label>	<input type="radio" name="ch">Bangalore </label>
+                <label>	<input type="radio" name="ch">Bloodhound </label>
+                <label>	<input type="radio" name="ch">Caustic </label>
+                <label>	<input type="radio" name="ch">Crypto </label>
+                <label>	<input type="radio" name="ch">Fuse </label>
+                <label>	<input type="radio" name="ch">Gibraltar </label>
+                <label>	<input type="radio" name="ch">Horizon </label>
+                <label>	<input type="radio" name="ch">Lifeline </label>
+                <label>	<input type="radio" name="ch">Loba </label>
+                <label>	<input type="radio" name="ch">Mirage </label>
+                <label>	<input type="radio" name="ch">Octane </label>
+                <label>	<input type="radio" name="ch">Pathfinder </label>
+                <label>	<input type="radio" name="ch">Rampart </label>
+                <label>	<input type="radio" name="ch">Revenant </label>
+                <label>	<input type="radio" name="ch">Valk </label>
+                <label>	<input type="radio" name="ch">Wattson </label>
+                <label>	<input type="radio" name="ch">Wraith </label>
+            </div>
+            
+            <div class="custom-select" style="width:200px;">
+                <select name="social">
+                  <option value="0">Select car:</option>
+                  <option value="1">Audi</option>
+                  <option value="2">BMW</option>
+                  <option value="3">Citroen</option>
+                  <option value="4">Ford</option>
+                  <option value="5">Honda</option>
+                  <option value="6">Jaguar</option>
+                  <option value="7">Land Rover</option>
+                  <option value="8">Mercedes</option>
+                  <option value="9">Mini</option>
+                  <option value="10">Nissan</option>
+                  <option value="11">Toyota</option>
+                  <option value="12">Volvo</option>
+                </select>
+            </div>
+            
+            <div>
+                <select name="social" id="new">
+                </select>
+            </div>
+            
+            <script>
+                
+                // funcion que llama a la api para pedir informacion 
+                async function get_social(url) {
+                    // almacenar data de la api 
+                    // await = esperar a una respuesta, solo async
+                    const response = await fetch(url,{
+                                                mode: 'cors'});
+                    
+                    // convierte la info en Json
+                    var data = await response.json();
+                    console.log(data);
+                    Object.entries(data).forEach(([key, value]) => {
+                        console.log(`${value.idObraSocial} ${value.nombre}`);
+                    });
+
+
+                    gen_options(data);
+                }
+                
+                function gen_options(data){
+                    Object.entries(data).forEach(([key, value]) => {
+                        console.log(`${value.idObraSocial} ${value.nombre}`);
+                        
+                        var opcion = document.createElement("option");
+                        opcion.value = value.idObraSocial;
+                        opcion.text = value.nombre;
+
+                        var element = document.getElementById("new");
+                        element.add(opcion,null);
+                    });
+
+                }
+
+                // almacena los datos de la api
+                const data = get_social("http://192.168.1.107:5000/get_social")
+
+                // recorre el json recuperado revisando la clave y el valor
+                
+                /*
+                let opcion1 = document.createElement("option");
+                opcion1.value = '2';
+                opcion1.text = 'acheri';
+
+                var element = document.getElementById("new");
+                element.add(opcion,null);
+                element.add(opcion1,null);
+                */
+            </script>
+
+
             <button type="submit" id="btn"> submit</button>
         </form>
 
         <script>
             const formulario = document.getElementById('login');
-            const postURL = "http://192.168.1.107:5000/especialidades/";
+            const postURL = "http://192.168.1.107:5000/register";
             
             const postData = document.getElementById("login");
 

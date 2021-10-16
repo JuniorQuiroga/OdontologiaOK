@@ -1,24 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<link rel="stylesheet" href="registerStyle.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-	<div class="general">
-		<h2>Registrarse</h2>
-		<div class= "inputBasico">
-			<input type="text" class="Inputs" name="Nombre" placeholder="Nombre" required="required">
-			<input type="text" class="Inputs" name="Apellido" placeholder="Apellido" required="required">
-			<input type="email" class="Inputs" name="email" placeholder="Correo electr&#243;nico" required="required">
-			<input type="password" class="Inputs" name="contrasenia" placeholder="Contrase&#241;a" required="required">
-			<input type="text" class="Inputs" name="dni" placeholder="DNI" required="required">
-			<input type="text" class="Inputs" name="telefono" placeholder="Tel&#233;fono" required="required">
-			<input type="text" class="Inputs" name="direccion" placeholder="Direcci&#243;n" required="required">
-		</div>  
-		<p><label ><input type="checkbox" required="required"> Acepto los <a href="#">terminos de uso</a> &amp; <a href="#">las politicas de privacidad</a></label></p>
-		<input type="submit" class="botones" value="Registrarme">
-		<p>&iquest;Ya tenes una cuenta?<a><a href="../login/login.html"> Inicia sesi&#243;n</a> </p>
-	</div>
-</body>
+	<head>
+		<link rel="stylesheet" href="../css/formStyles.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script type="text/javascript" src="send_register.js"></script>
+		<script type="text/javascript" src="get_obra_social.js"></script>
+	</head>
+
+	<body>
+		
+		<div class="general">
+			<p>Registrarse</p>
+			<div class= "inputBasico">
+				<form id='form'>
+
+					<input 	required type="text" class="Inputs" name="nombre"
+							placeholder="Nombre"
+							autocomplete="name"
+							pattern="[A-Za-z]{1,}"
+							maxlength=100>
+							
+					<input 	required type="text" class="Inputs" name="apellido"
+							placeholder="Apellido"
+							pattern="[A-Za-z]{1,}"
+							maxlength=100>
+							
+					<input 	required type="email" class="Inputs" name="email"
+							autocomplete="email"
+							placeholder="Correo electr&#243;nico"
+							pattern="[a-zA-Z0-9]{1,}@[a-zA-Z.-]{1,}[.]{1}[a-zA-Z]{1,}"
+							maxlength=100>
+
+					<input	required type="password" class="Inputs" name="contrasenia"
+							autocomplete="current-password"
+							placeholder="Contrase&#241;a"
+							pattern="[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]{8,}"
+							maxlength=50 minlength=8>
+					
+					<input 	required type="text" class="Inputs" name="dni"
+							placeholder="DNI"
+							pattern="\d{8}"
+							
+							value="64543123">
+							
+					<input 	required type="text" class="Inputs" name="telefono"
+							placeholder="Tel&#233;fono"
+							pattern="\d{10}" 
+							
+							value="1164321245">
+							
+					<input 	required type="text" class="Inputs" name="direccion"
+							placeholder="Direcci&#243;n"
+							pattern="[A-Za-z0-9.\s]{1,}"
+							maxlength=50
+							
+							value="av. miserere 124">
+					
+					<div>
+						<select required class="Inputs" name="obra_social" id="obra_social">
+							<option value="false" placeholder="Obra social"></option>
+						</select>
+					</div>
+					
+					<label>
+						<p>
+							<input required type="checkbox" required="required"> Acepto los 
+							<a href="condiciones.html">
+								terminos de uso y politicas de privacidad
+							</a>
+						</p>
+					</label>
+					
+					<p>
+						&iquest;Ya tienes una cuenta?
+						<a href="../login/login.html">
+							Inicia sesi&#243;n
+						</a> 
+					</p>
+					
+					<button type="submit" class="botones">Registrarse</button>
+				</form>
+			</div>  
+		</div>
+	</body>
 </html>

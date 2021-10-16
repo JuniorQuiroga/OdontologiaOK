@@ -15,7 +15,7 @@ body{
 	border-radius: 4px;
 	font-family: 'calibri';
 	color: rgb(46, 46, 46);
-	box-shadow: 7px 13px 37px rgb(0, 0, 0);
+	box-shadow: 10px 10px 20px rgb(101, 144, 173);
 }
 
 .general h2{
@@ -34,6 +34,7 @@ body{
 	font-family: 'calibri';
 	font-size: 18px;
 }
+
 .general p{
 	height: 40px;
 	text-align: center;
@@ -41,11 +42,11 @@ body{
 }
 
 .general a{
-	color: rgb(68, 71, 248);
+	color: rgb(68, 116, 248);
 	text-decoration: none;
 }
 .general a:hover{
-	color: rgb(5, 27, 221);
+	color: rgb(103, 44, 212);
 	text-decoration: underline;
 }
 
@@ -58,6 +59,11 @@ body{
 	margin: 16px 0;
 	font-size: 16px;
 }
+
+.botones:hover{
+	background: #58b4bb;
+}
+
 .condiciones{
     margin: 0 auto;
     position: relative;
