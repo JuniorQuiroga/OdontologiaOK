@@ -1,8 +1,10 @@
-from flask import Flask, json, jsonify, request
+from flask import Flask, json, jsonify, request, redirect
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 from config import config
 import uuid
+from http import cookies
+
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -46,16 +48,6 @@ def register():
         con = mysql.connect()
         cursor = con.cursor()
 
-        print(  gen_token(),
-                request.json['nombre'],
-                request.json['apellido'],
-                request.json['email'],
-                request.json['contrasenia'],
-                request.json['dni'],
-                request.json['telefono'],
-                request.json['direccion'],
-                request.json['obra_social'])
-
         if request.json['obra_social'] == "false":
             # se genera la consulata, se ejecuta y se confirma
             consulta = "Insert into Paciente(uuid,nombre,apellido,email,contrasenia,dni,telefono,direccion) values ('{0}','{1}','{2}','{3}','{4}',{5},{6},'{7}')".format(
@@ -82,7 +74,7 @@ def register():
         con.commit()
         
         # devuelve un mensaje en formato JSON
-        return jsonify({'mensaje':'Especialidad registrada exitosamente'})
+        return jsonify({'mensaje':'Paciente registrado exitosamente'})
 
     # en caso de error devuelve un mensaje en formato JSON
     except Exception as ex:
@@ -90,7 +82,7 @@ def register():
 
 
 
-# Obras sociales ------------------------------------------------------
+# Obras sociales -------------------------------------------------------
 # retorna la lista de nombres de las obras sociales junto con su id
 # para poder mostrarlos en la lista de opciones en la web
 @app.route('/get_social', methods=['Get'])
@@ -103,7 +95,7 @@ def get_obra_social():
     # gurda los datos de la consulata en una tupla
     # se envia a tuple_json() para crear un json  
     datos = cursor.fetchall()
-    
+
     # crea un diccionario con todos los datos de la tupla
     obras_sociales = []
     for fila in datos:
@@ -112,12 +104,48 @@ def get_obra_social():
     return jsonify(obras_sociales)
 
 
-# ERROR 404 -----------------------------------------------------------
+
+# Login -------------------------------------------------------
+@app.route('/login', methods=['post'])
+def Login():
+    print (request.json["email"],request.json["contrasenia"])
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        cursor = get_cursor()
+        consulta = "select uuid from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
+        cursor.execute(consulta)
+
+        # gurda los datos de la consulata en una tupla
+        # se envia a tuple_json() para crear un json  
+        datos = cursor.fetchone()
+        print(datos)
+        
+
+        if datos != None:
+            cookie = cookies.SimpleCookie()
+            cookie["uuid"] = datos[0]
+            
+            return json.dumps({'loged':True}), 200, {'ContentType':'application/json'} 
+
+        # crea un diccionario con todos los datos de la tupla
+        obras_sociales = []
+        for fila in datos:
+            obras_sociales.append({'idObraSocial':fila[0],'nombre':fila[1]})
+
+        return jsonify(obras_sociales)
+
+    except Exception as ex:
+            return jsonify({'mensaje':'Error (Insert): {0}'.format(ex)})
+
+
+
+# ERROR 404 ------------------------------------------------------------
 def NotFoundView(error):
     return "<h1>La pagina a la que intenta acceder no existe</h1>",404
 
 
 
+# MAIN -----------------------------------------------------------------
 if __name__ == "__main__":
     #importa un archivo de configuracion
     app.config.from_object(config['develop'])

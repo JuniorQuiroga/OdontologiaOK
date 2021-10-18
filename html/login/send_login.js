@@ -19,12 +19,15 @@ async function post(postURL){
         
         // espera por la respuesta del servidor
         const result = await response.json();
+        if (result['loged']==true)
+        window.location.replace("./logueadoPaciente.html");
         console.log(result);
     });
 }
 
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
+    /*
     let x = document.cookie;   //leemos las cookies
     let cookies =x.split(";"); //las separamos
     let local =false;
@@ -34,7 +37,8 @@ document.addEventListener('DOMContentLoaded',()=>{
             local=true; 
     })
     if(local)
-        post("http://localhost:5000/register") //usamos la cookie para correr backend local     
     else 
-        post("http://3.15.139.183:5000/register") //corre con local
-})
+    post("http://3.15.139.183:5000/login") //corre con local
+    */
+    post("http://localhost:5000/login") //usamos la cookie para correr backend local     
+    })

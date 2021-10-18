@@ -11,6 +11,8 @@ html{
 	background-attachment: fixed;
 	background-size: cover;
 	height: 100vh;
+	font-family: 'calibri';
+	color: rgb(46, 46, 46);
 }
 
 .general{
@@ -21,9 +23,6 @@ html{
 	padding: 30px;
 	margin: 50px auto;
 
-	font-family: 'calibri';
-	color: rgb(46, 46, 46);
-	
 	background: #ffffff;
 }
 
@@ -48,6 +47,12 @@ html{
 	font-size: 18px;
 	
 	background: #d8eef5;
+}
+
+.Inputs input:-internal-autofill-selected {
+    appearance: menulist-button;
+    background-image: none !important;
+    color: -internal-light-dark(black, white) !important;
 }
 
 .cliqueable{

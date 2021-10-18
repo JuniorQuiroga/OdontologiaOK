@@ -34,7 +34,6 @@ function gen_options(data){
 
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
-/*
     let x = document.cookie;   //leemos las cookies
     let cookies =x.split(";"); //las separamos
     let local =false;
@@ -44,10 +43,9 @@ document.addEventListener('DOMContentLoaded',()=>{
             local=true; 
     })
     if(local)
+        get_social("http://localhost:5000/get_social") //usamos la cookie para correr backend local     
     else 
-    get_social("http://3.15.139.183:5000/get_social") //corre con local
-    */
-    get_social("http://localhost:5000/get_social") //usamos la cookie para correr backend local     
+        get_social("http://3.15.139.183:5000/get_social") //corre con local
     // llama la api para pedir los datos  
 })//conceptualmente esta mal, pero nos sirve para lo que hacemos.
 
