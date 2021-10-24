@@ -138,6 +138,85 @@ def Login():
             return jsonify({'mensaje':'Error (Insert): {0}'.format(ex)})
 
 
+# Especialidades para turno --------------------------------------------
+@app.route('/get_especialidad', methods=['Get'])
+def get_especialidad():
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        #con = mysql.connect(use)
+        cursor = get_cursor()
+        consulta = "select idEspecialidad, nombre from Especialidad"
+        cursor.execute(consulta)
+
+        # gurda los datos de la consulata en una tupla
+        # se envia a tuple_json() para crear un json
+        datos = cursor.fetchall()
+
+        # crea un diccionario con todos los datos de la tupla
+        especialidades = []
+        for fila in datos:
+            especialidades.append({'id':fila[0],'nombre':fila[1]})
+
+        return jsonify(especialidades)
+
+    except Exception as ex:
+        return jsonify({'mensaje':'Error (Especialidad): {0}'.format(ex)})
+
+# Especialidades para turno --------------------------------------------
+@app.route('/get_medico/<codigo>', methods=['Get'])
+def get_medico(codigo):
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        #con = mysql.connect(use)
+        cursor = get_cursor()
+        consulta = "select idMedico, nombre from Medico where especialidad={0}".format(codigo)
+        cursor.execute(consulta)
+
+        # gurda los datos de la consulata en una tupla
+        # se envia a tuple_json() para crear un json
+        datos = cursor.fetchall()
+
+        # crea un diccionario con todos los datos de la tupla
+        especialidades = []
+        for fila in datos:
+            especialidades.append({'id':fila[0],'nombre':fila[1]})
+
+        return jsonify(especialidades)
+
+    except Exception as ex:
+        return jsonify({'mensaje':'Error (Medico): {0}'.format(ex)})
+
+
+
+# Especialidades para turno --------------------------------------------
+@app.route('/get_hora/<codigo>', methods=['Get'])
+def get_hora(codigo):
+    try:
+        codigo_s = codigo.split("/")
+        
+        
+
+        # conecta con la BD y crear un cursor para hacer consultas
+        #con = mysql.connect(use)
+        cursor = get_cursor()
+        consulta = "select dia from Turno where medico={0} && anio={1} && mes={2} && dia={3} && hora={4}".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3],codigo_s[4])
+        cursor.execute(consulta)
+
+        # gurda los datos de la consulata en una tupla
+        # se envia a tuple_json() para crear un json
+        datos = cursor.fetchone()
+
+        # crea un diccionario con todos los datos de la tupla
+        especialidades = []
+        for fila in datos:
+            especialidades.append({'id':fila[0],'nombre':fila[1]})
+
+        return jsonify(especialidades)
+
+    except Exception as ex:
+        return jsonify({'mensaje':'Error (Medico): {0}'.format(ex)})
+
+
 
 # ERROR 404 ------------------------------------------------------------
 def NotFoundView(error):

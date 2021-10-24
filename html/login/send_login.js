@@ -20,7 +20,8 @@ async function post(postURL){
         // espera por la respuesta del servidor
         const result = await response.json();
         if (result['loged']==true)
-        window.location.replace("./logueadoPaciente.html");
+            window.location.replace("./logueadoPaciente.html");
+
         console.log(result);
     });
 }
