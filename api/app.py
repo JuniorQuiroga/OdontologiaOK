@@ -135,6 +135,7 @@ def Login():
             return jsonify({'mensaje':'Error (login): login fallido'}),500
  
 
+# SACAR TURNO ########################################################## 
 # Especialidades para turno --------------------------------------------
 @app.route('/get_especialidad', methods=['Get'])
 def get_especialidad():
@@ -159,7 +160,9 @@ def get_especialidad():
             traceback.print_exc()
             return jsonify({'mensaje':'Error (SacarEspecialidad): especialidad fallida'}),500
 
-# Especialidades para turno --------------------------------------------
+
+
+# Medico para turno --------------------------------------------
 @app.route('/get_medico/<codigo>', methods=['Get'])
 def get_medico(codigo):
     try:
@@ -177,7 +180,7 @@ def get_medico(codigo):
         for fila in datos:
             especialidades.append({'id':fila[0],'nombre':fila[1]})
 
-        return jsonify(especialidades)
+        return jsonify(especialidades),200
 
     except Exception as ex:
             traceback.print_exc()
@@ -189,7 +192,7 @@ def prueba():
         print(str(header))
 
 
-# Especialidades para turno --------------------------------------------
+# Horas para turno --------------------------------------------
 @app.route('/get_hora/<codigo>', methods=['Get'])
 def get_hora(codigo):
     try:
@@ -240,15 +243,37 @@ def get_hora(codigo):
                 dics.pop("{0}:{1}".format(turno[0],turno[1]))
 
         ocupadas = []
-        for k in dics.keys():
-            ocupadas.append({'hora':k})
+        for hora in dics.keys():
+            ocupadas.append({'nombre':hora})
 
-        return jsonify({'horas ocupadas':ocupadas})
+        return jsonify(ocupadas),200
         #return jsonify(datos)
 
     except Exception as ex:
             traceback.print_exc()
             return jsonify({'mensaje':'Error (SacarTurnoHora): hora fallida'}),500
+
+
+
+# Registra el turno --------------------------------------------
+@app.route('/sacar_turno/', methods=['post'])
+def sacar_turno():
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        con = mysql.connect()
+        cursor = con.cursor()
+
+        consulta = "select idPaciente from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
+        cursor.execute(consulta)
+             
+
+        response = Response()
+        if datos != None:
+
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (SacarTurnoHora): hora fallida'}),500
+
 
 
 

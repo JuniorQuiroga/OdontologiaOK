@@ -3,58 +3,54 @@
     <head>
         <link rel="stylesheet" href="../css/formStyles.css">
         <link rel="stylesheet" href="prueba.css">
-        <script type="text/javascript" src="get_especialidad.js"></script>
+        <script type="text/javascript" src="get_turno.js"></script>
+        <script type="text/javascript" src="send_turno.js"></script>
         <script type="text/javascript" src="../scripts/verificar_cookie.js"></script>
     </head>
     <body>
         <header>
-        </label>
-            
             <nav class="menu">
                 <u1>
-                    <li><a href="#">Inicio</a></li>
+                    <li><a href="../index.html">Inicio</a></li>
                     <li><a href="#">Nuestro Equipo</a></li>
                     <li><a>Sacar turno</a></li>
                 </u1>
             </nav>
         </header>
-        <div class="turno">
+
+        <div class="general">
             <form id="form">
-                <!--DROPDOWNS - seleccionar medico-->
-                <div>
-                    <select required name="especialidad" id="especialidad">
-                    </select>
+                <div class="Inputs">
+                    <div>
+                        <select required name="especialidad" id="especialidad">
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <select required name="medico" id="medico">
+                        </select>
+                    </div>
+    
+                    <div>
+                        <select required name="anio" id="anio">
+                        </select>
+                    </div>
+                    <div>
+                        <select required name="mes" id="mes">
+                        </select>
+                    </div>
+                    <div>
+                        <select required name="dia" id="dia">
+                        </select>
+                    </div>
+                    <div>
+                        <select required name="hora" id="hora">
+                        </select>
+                    </div>
                 </div>
                 
-                <div>
-                    <select required name="medico" id="medico">
-                    </select>
-                </div>
-
-                <!--DROPDOWNS - seleccionar fecha-->
-                <div>
-                    <select required name="anio" id="anio">
-                    </select>
-                </div>
-                <div>
-                    <select required name="mes" id="mes">
-                    </select>
-                </div>
-                <div>
-                    <select required name="dia" id="dia">
-                    </select>
-                </div>
-                <div>
-                    <select required name="hora" id="hora">
-                    </select>
-                </div>
-                
-                <input type="text" name="" id="">
-                <input type="text" name="" id="">
-
-                <button type="submit" id="agendar" name="agendar">Agendar Turno</button>
+                <input type="submit" class="botones" value="Agendar Turno"></button>
             </form>
-            <button onclick="x()">holi</button>
         </div>
     </body>
 </html>

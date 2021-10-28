@@ -24,20 +24,11 @@ async function post(postURL){
         
         // espera por la respuesta del servidor
         const result = await response.json();
-        if (result['loged']==true){
-            //document.cookie = response.headers["set-cookie"]
-            window.location.replace("./logueadoPaciente.html");
-        }
-        else{
-            window.location.replace("./login.html");
-        }
-
-
         console.log(result);
     });
 }
 
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
-    post(ip+"/login")
+   post(ip+"/sacar_turno")
 })

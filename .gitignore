@@ -15,8 +15,6 @@
 *.tar
 *.zip
 
-#bases de datos
-*.sql
 
 #configuracion y cache
 config.py

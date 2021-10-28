@@ -107,8 +107,6 @@ function get_medico() {
         var fecha = new Date();
         var mes = fecha.getMonth();
         
-        ClearOptionsAlt("form","mes");
-        campo_vacio("mes")
         
         // agarra el select de año
         var select = document.getElementById('anio');
@@ -124,6 +122,7 @@ function get_medico() {
             // guarda el año de la opcion seleccionada 
             var anio = this.options[select.selectedIndex];
             
+            campo_vacio("mes")
             //si el año es el actual genera los meses desde el actual al fin de año
             if(anio.value == fecha.getFullYear()){
                 for(var i=mes+1; i<13 ;i++){
@@ -163,16 +162,15 @@ function get_medico() {
         // agarra el select de mes
         var select = document.getElementById('mes');
         
-        ClearOptionsAlt("form","dia");
-        campo_vacio("dia")
         
         // agrega un listener de cambio -> cuando el valor cambia ejecuta la funcion
         select.addEventListener('change',
         
         // genera las opciones dependiendo del año anteriormente elegido
         function(){
-            //limpia la lista
             ClearOptionsAlt("form","dia");
+            campo_vacio("dia")
+            //limpia la lista
             
             // guarda el valor de año
             var anio_s = document.getElementById('anio');
