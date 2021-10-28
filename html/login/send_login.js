@@ -13,14 +13,20 @@ async function post(postURL){
         const response = await fetch(postURL,{
             mode: 'cors',
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json',
+                        'Autorization':get_cookie("token")},
             body: jsonForm
         });
         
         // espera por la respuesta del servidor
         const result = await response.json();
-        if (result['loged']==true)
+        if (result['loged']==true){
+            //document.cookie = response.headers["set-cookie"]
             window.location.replace("./logueadoPaciente.html");
+
+        }
+
 
         console.log(result);
     });
@@ -39,7 +45,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     })
     if(local)
     else 
-    post("http://3.15.139.183:5000/login") //corre con local
-    */
     post("http://localhost:5000/login") //usamos la cookie para correr backend local     
+    */
+   post("http://3.15.139.183:5000/login") //corre con local
+   
+    
+    
     })

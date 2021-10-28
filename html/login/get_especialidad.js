@@ -1,4 +1,4 @@
-const ip= "localhost"
+const ip= "localhost";
 
 // Standard javascript function to clear all the options in an HTML select element
 // In this method, you just provide the form name and dropdown box name
@@ -32,7 +32,7 @@ function gen_options(data,seleccion){
         
         // crea una opcion y le asigna los valores recibidos
         var opcion = document.createElement("option");
-        opcion.value = value.id;
+        opcion.value = value.id; 
         opcion.text = value.nombre;
 
         // busca la lista de seleccion
@@ -62,10 +62,9 @@ function get_medico() {
         
         // llamamos a la api pasando como codigo la id de especilidad seleccionada
         // devuelve id y nombres de los medicos de la especialidad seleccionada
-        get_data("http://"+ip+":5000/get_medico/"+selectedOption.value+"").then(
+        get_data("http://3.15.139.183:5000/get_medico/"+selectedOption.value+"").then(
             data => gen_options(data,"medico")
         )
-
         //genera opciones para medico segun lo recibido
     });
 }
@@ -142,7 +141,6 @@ function mes(){
     });
     
 }   
-
 
 function dia(){
     
@@ -228,44 +226,52 @@ function dia(){
     
 }
 
-function gen_date(){
-    anio();
-    mes();
-    dia();
-}
-
 function hora(){
     var anio_s = document.getElementById('anio').value;
     var mes_s = document.getElementById('mes').value;
     var dia_s = document.getElementById('dia').value;
+   
     var medico_s = document.getElementById('medico');
     var med = medico_s.options[medico_s.selectedIndex].value;
-    var cont = 9;
+    var cont = [9,0];
+    //9 am a 6 pm
 
+    console.log(cont);
     
     for(var i=0; i<14 ;i++){
-        var string = ""+anio_s+"/"+mes_s+"/"+dia_s+"/"+med+"/"+cont+"";
-        get_data("http://"+ip+":5000/get_medico/"+string+"")
+        var string = ""+anio_s+"-"+mes_s+"-"+dia_s+"-"+cont[0]+"-"+cont[1]+"-"+med+"";
+        var respuesta = get_data("http://3.15.139.183:5000/get_hora/"+string+"")
         
+        console.log(cont);
         // consultar => null => se hace 
         // mostrar hora
-         // sumar 30 a cont
+            // sumar 30 a cont
 
-         if(){
+        // recorre los turnos y sus intervalos horarios 
+        // y muestra los que no tengan un turno asignados
+        if(respuesta == null){
             var opcion = document.createElement("option");
-            opcion.value = i;
-            opcion.text = i;
+            opcion.value = cont;
+            opcion.text = cont;
             
             // busca la lista de seleccion
-            var element = document.getElementById("dia");
+            var element = document.getElementById("hora");
             
             // agrega una nueva opcion a la lista de seleccion
             element.add(opcion,null);
         }
+        cont[1]+=30
+        if(cont[1]==60){
+            cont[0]+=1;
+            cont[1]=0;
+        }
+    
     }
     
     
 }
+
+
 
 
 // espera a que la pagina se cargue por completo
@@ -282,14 +288,22 @@ document.addEventListener('DOMContentLoaded',()=>{
     else
     get_especialidad("http://3.15.139.183:5000/get_especialidad") //corre con local
     */
-    gen_date()
-    
-    get_data("http://localhost:5000/get_especialidad").then(
+   
+    get_data("http://3.15.139.183:5000/get_especialidad").then(
         data_especialidad => gen_options(data_especialidad,"especialidad")
-        )  
-    
-    // llama la api para pedir los datos  
+        )
     get_medico()
+    
+    med =document.getElementById("medico")
+    med.addEventListener('change',
+    function gen_date(){
+        anio();
+        mes();
+        dia();
+        hora();
+    });
+
+
 })//conceptualmente esta mal, pero nos sirve para lo que hacemos.
 
 

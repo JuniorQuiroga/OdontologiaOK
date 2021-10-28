@@ -27,14 +27,15 @@ async function post(postURL){
 document.addEventListener('DOMContentLoaded',()=>{
     let x = document.cookie;   //leemos las cookies
     let cookies =x.split(";"); //las separamos
-    let local =false;
+    /*let local =false;
 
     cookies.forEach(cookie => { //recorrer el array de cookies
         if(cookie.split("=")[0] =="local" && cookie.split("=")[1]=="true") //si esta seteado local a true
             local=true; 
     })
     if(local)
-        post("http://localhost:5000/register") //usamos la cookie para correr backend local     
     else 
-        post("http://3.15.139.183:5000/register") //corre con local
+    post("http://localhost:5000/register") //usamos la cookie para correr backend local     
+    */
+   post("http://3.15.139.183:5000/register") //corre con local
 })

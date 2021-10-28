@@ -1,13 +1,14 @@
-from flask import Flask, json, jsonify, request, redirect
+from flask import Flask, json, jsonify, request, Response
+
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 from config import config
 import uuid
 from http import cookies
-
+import traceback
 
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app,supports_credentials=True)
 mysql = MySQL()
 mysql.init_app(app)
 
@@ -20,21 +21,22 @@ def get_cursor():
 # genera un token unico para cada usuario
 # al generarse se compara con todos los que se encuentren en la base de datos hasta el momento
 # si está repetido, se vuelve a llamar a la función repitiendo el ciclo
-def gen_token():
+def gen_token(usuario):
+    con = mysql.connect()
+    cursor = con.cursor()
+
     token = str(uuid.uuid4())
+
 
     # pide todos los tokens de la base de datos y las almacena
     # devuelve una tupla => tokens_db[n][0] n+=1
-    cursor = get_cursor()
-    cursor.execute("select uuid from Paciente")
-    tokens_db = cursor.fetchall()
+    
+    cursor.execute("insert into Token  (idPaciente,token) values ({0}, '{1}') ".format(usuario,token))
+    con.commit()
     
     # si el token esta en la tupla se llama a si mismo
     # sino devuelve el token
-    if token in tokens_db:
-        gen_token()
-    else:
-        return token
+    return token
 
 
 
@@ -50,8 +52,7 @@ def register():
 
         if request.json['obra_social'] == "false":
             # se genera la consulata, se ejecuta y se confirma
-            consulta = "Insert into Paciente(uuid,nombre,apellido,email,contrasenia,dni,telefono,direccion) values ('{0}','{1}','{2}','{3}','{4}',{5},{6},'{7}')".format(
-                                                                                            gen_token(),
+            consulta = "Insert into Paciente(nombre,apellido,email,contrasenia,dni,telefono,direccion) values ('{0}','{1}','{2}','{3}',{4},{5},'{6}')".format(
                                                                                             request.json['nombre'],
                                                                                             request.json['apellido'],
                                                                                             request.json['email'],
@@ -60,8 +61,7 @@ def register():
                                                                                             request.json['telefono'],
                                                                                             request.json['direccion'])
         else:
-            consulta = "Insert into Paciente(uuid,nombre,apellido,email,contrasenia,dni,telefono,direccion,obraSocial) values ('{0}','{1}','{2}','{3}','{4}',{5},{6},'{7}',{8})".format(
-                                                                                            gen_token(),
+            consulta = "Insert into Paciente(nombre,apellido,email,contrasenia,dni,telefono,direccion,obraSocial) values ('{0}','{1}','{2}','{3}',{4},{5},'{6}','{7}')".format(
                                                                                             request.json['nombre'],
                                                                                             request.json['apellido'],
                                                                                             request.json['email'],
@@ -78,7 +78,8 @@ def register():
 
     # en caso de error devuelve un mensaje en formato JSON
     except Exception as ex:
-            return jsonify({'mensaje':'Error (Insert): {0}'.format(ex)})
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
 
 
 
@@ -92,8 +93,7 @@ def get_obra_social():
     consulta = "select idObraSocial, nombre from Obra_Social"
     cursor.execute(consulta)
 
-    # gurda los datos de la consulata en una tupla
-    # se envia a tuple_json() para crear un json  
+    # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
     datos = cursor.fetchall()
 
     # crea un diccionario con todos los datos de la tupla
@@ -108,35 +108,36 @@ def get_obra_social():
 # Login -------------------------------------------------------
 @app.route('/login', methods=['post'])
 def Login():
-    print (request.json["email"],request.json["contrasenia"])
+    #print (request.json["email"],request.json["contrasenia"])
+    
     try:
         # conecta con la BD y crear un cursor para hacer consultas
         cursor = get_cursor()
-        consulta = "select uuid from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
+        consulta = "select idPaciente from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
         cursor.execute(consulta)
 
-        # gurda los datos de la consulata en una tupla
-        # se envia a tuple_json() para crear un json  
+        # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
         datos = cursor.fetchone()
-        print(datos)
+        #print(datos)
         
 
+        response = Response()
         if datos != None:
-            cookie = cookies.SimpleCookie()
-            cookie["uuid"] = datos[0]
-            
-            return json.dumps({'loged':True}), 200, {'ContentType':'application/json'} 
+            response.headers['set-cookie']= "token="+gen_token(datos[0])+"; Max-Age=3600; Path=/"
+            response.headers['ContentType']= 'application/json'
+            response.response = json.dumps({'loged':True})
+            response.status_code = 200
 
-        # crea un diccionario con todos los datos de la tupla
-        obras_sociales = []
-        for fila in datos:
-            obras_sociales.append({'idObraSocial':fila[0],'nombre':fila[1]})
-
-        return jsonify(obras_sociales)
+        else:
+            response.headers['ContentType']= 'application/json'
+            response.response = json.dumps({'loged':False})
+            response.status_code = 401
+        return response 
 
     except Exception as ex:
-            return jsonify({'mensaje':'Error (Insert): {0}'.format(ex)})
-
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
+ 
 
 # Especialidades para turno --------------------------------------------
 @app.route('/get_especialidad', methods=['Get'])
@@ -148,8 +149,7 @@ def get_especialidad():
         consulta = "select idEspecialidad, nombre from Especialidad"
         cursor.execute(consulta)
 
-        # gurda los datos de la consulata en una tupla
-        # se envia a tuple_json() para crear un json
+        # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
         datos = cursor.fetchall()
 
         # crea un diccionario con todos los datos de la tupla
@@ -160,7 +160,8 @@ def get_especialidad():
         return jsonify(especialidades)
 
     except Exception as ex:
-        return jsonify({'mensaje':'Error (Especialidad): {0}'.format(ex)})
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
 
 # Especialidades para turno --------------------------------------------
 @app.route('/get_medico/<codigo>', methods=['Get'])
@@ -172,8 +173,7 @@ def get_medico(codigo):
         consulta = "select idMedico, nombre from Medico where especialidad={0}".format(codigo)
         cursor.execute(consulta)
 
-        # gurda los datos de la consulata en una tupla
-        # se envia a tuple_json() para crear un json
+        # gurda la respuesta de la consulata en una tupla
         datos = cursor.fetchall()
 
         # crea un diccionario con todos los datos de la tupla
@@ -184,37 +184,38 @@ def get_medico(codigo):
         return jsonify(especialidades)
 
     except Exception as ex:
-        return jsonify({'mensaje':'Error (Medico): {0}'.format(ex)})
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
 
+@app.route('/sarasa', methods=['Get'])
+def prueba():
+    for header in request.headers:
+        print(str(header))
 
 
 # Especialidades para turno --------------------------------------------
 @app.route('/get_hora/<codigo>', methods=['Get'])
 def get_hora(codigo):
     try:
-        codigo_s = codigo.split("/")
+        #a/m/d/ hh/mm/ medico
+        codigo_s = codigo.split("-")
         
         
-
         # conecta con la BD y crear un cursor para hacer consultas
         #con = mysql.connect(use)
         cursor = get_cursor()
-        consulta = "select dia from Turno where medico={0} && anio={1} && mes={2} && dia={3} && hora={4}".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3],codigo_s[4])
+        consulta = "SELECT EXTRACT(DAY FROM fechaAgenda) AS dia FROM Turno where medico={5} && fechaAgenda='{0}/{1}/{2} {3}:{4}'".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3],codigo_s[4],codigo_s[5])
         cursor.execute(consulta)
 
-        # gurda los datos de la consulata en una tupla
-        # se envia a tuple_json() para crear un json
+        # gurda la respuesta de la consulata en una tupla 
         datos = cursor.fetchone()
+        print(datos)
 
-        # crea un diccionario con todos los datos de la tupla
-        especialidades = []
-        for fila in datos:
-            especialidades.append({'id':fila[0],'nombre':fila[1]})
-
-        return jsonify(especialidades)
+        #return jsonify(datos)
 
     except Exception as ex:
-        return jsonify({'mensaje':'Error (Medico): {0}'.format(ex)})
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
 
 
 

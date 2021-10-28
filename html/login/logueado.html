@@ -4,7 +4,6 @@
         <link rel="stylesheet" href="../css/formStyles.css">
         <link rel="stylesheet" href="prueba.css">
         <script type="text/javascript" src="get_especialidad.js"></script>
-        <script type="text/javascript" src="../scripts/verificar_cookie.js"></script>
     </head>
     <body>
         <header>
@@ -32,29 +31,46 @@
                 </div>
 
                 <!--DROPDOWNS - seleccionar fecha-->
-                <div>
+                <div id=divAnio>
                     <select required name="anio" id="anio">
                     </select>
+                    <div id=divMes>
+                        <select required name="mes" id="mes">
+                        </select>
+                        <div id=divDia>
+                            <select required name="dia" id="dia">
+                            </select>
+                            <div id=divHora>
+                                <select required name="hora" id="hora">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <select required name="mes" id="mes">
-                    </select>
-                </div>
-                <div>
-                    <select required name="dia" id="dia">
-                    </select>
-                </div>
-                <div>
-                    <select required name="hora" id="hora">
-                    </select>
-                </div>
+
+                <script>
+                    document.getElementById("divAnio").addEventListener("click", function() {
+                      alert("You clicked the anio!");
+                    }, false);
+                    
+                    document.getElementById("myDiv1").addEventListener("click", function() {
+                      alert("You clicked the orange element!");
+                    }, false);
+                    
+                    document.getElementById("myP2").addEventListener("click", function() {
+                      alert("You clicked the white element!");
+                    }, true);
+                    
+                    document.getElementById("myDiv2").addEventListener("click", function() {
+                      alert("You clicked the orange element!");
+                    }, true);
+                </script>
                 
                 <input type="text" name="" id="">
                 <input type="text" name="" id="">
 
                 <button type="submit" id="agendar" name="agendar">Agendar Turno</button>
             </form>
-            <button onclick="x()">holi</button>
         </div>
     </body>
 </html>
