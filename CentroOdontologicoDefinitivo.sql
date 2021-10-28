@@ -12,32 +12,40 @@ create table Tier_Obra_Social(
 create table Obra_Social(
 	idObraSocial int auto_increment,
     nombre varchar(20),
-    tier int,
-    primary key(idObraSocial),
-    foreign key (tier) references Tier_Obra_Social(idTier)
+    primary key(idObraSocial)
 );
 
-create table Cliente(
-	idCliente int auto_increment,
+create table TierObraSocial_ObraSocial(
+	idTier int,
+    idObraSocial int,
+    
+    primary key (idTier,idObraSocial),
+    foreign key (idObraSocial) references Obra_Social(idObraSocial),
+    foreign key (idTier) references Tier_Obra_Social(idTier)
+);
+
+create table Paciente(
+	idPaciente int auto_increment,
 	dni int unique,
     nombre varchar(100),
     apellido varchar(100),
-    mail varchar(100),
+    email varchar(100),
+    contrasenia varchar(100),
     telefono int,
     direccion varchar(50),
 	obraSocial int,
     
-    primary key(idCliente),
+    primary key(idPaciente),
     foreign key (obraSocial) references Obra_Social(idObraSocial)
 );
 
 create table Radiografia(
 	idRadiografia int auto_increment,
     fecha date,
-    cliente int,
+    paciente int,
     
     primary key(idRadiografia),
-    foreign key(cliente) references Cliente(idCliente)
+    foreign key(paciente) references Paciente(idPaciente)
 );
 
 
@@ -54,6 +62,8 @@ create table Medico(
     nombre varchar(100),
     apellido varchar(100),
     especialidad int,
+    email varchar(100),
+    contrasenia varchar(100), 
     
     primary key(idMedico),
     foreign key(especialidad) references Especialidad(idEspecialidad)
@@ -62,7 +72,7 @@ create table Medico(
 
 create table Turno(
 	idTurno int auto_increment,
-    cliente int,
+    paciente int,
     medico int,
     fechaAgenda datetime,
     fechaTurno datetime,
@@ -70,8 +80,15 @@ create table Turno(
     requisitos varchar(50),
     
     primary key(idTurno),
-    foreign key (cliente) references Cliente(idCliente),
+    foreign key (paciente) references Paciente(idPaciente),
     foreign key (medico) references Medico(idMedico)
+);
+
+create table Token(
+idPaciente int,
+token varchar(36),
+primary key(idPaciente,token),
+foreign key (idPaciente) references Paciente(idPaciente)
 );
 
 insert into Especialidad(nombre) values 
@@ -91,6 +108,9 @@ insert into Medico(nombre,apellido,matricula,especialidad) values
 ('Jorge','Dencia',131451,3),
 ('Leonardo','De La Fuente',967516,4),
 ('Mariano','Medina',674516,5);
+
+insert into Medico(nombre,apellido,matricula,especialidad,email,contrasenia) values
+('Rojelio','Rupertencio',213454,1,'med@gmail.com','12345678');
 
 insert into Tier_Obra_Social(nombre,coberturaOdontologica)
 values ('Plan 220','Profesionales de cartilla:
@@ -140,19 +160,30 @@ Profesionales no incluidos en su cartilla:
 (**) Con una antigüedad mínima de 12 meses.');
 
 
-Insert into Obra_Social(tier,nombre)
-values (1,'Galeno'),
-(2,'Galeno'),
-(3,'Galeno'),
-(4,'Galeno');
+Insert into Obra_Social(nombre)
+values ('Galeno'),
+('Osde');
 
-Insert into Cliente(dni,nombre,apellido,mail,telefono,direccion,obraSocial) values
-(44798570,'Marcelo Fabrizio','Lombardo','fabiziomarcelolombardo@gmail.com',1154775943,'Av. Santa Fe 3069',1),
-(49243265,'Junior','Quiroga','quirogajunior@gmail.com',1123426346,'Monte Grande 123',2);
+insert into TierObraSocial_ObraSocial(idTier,idObraSocial) values
+(1,1),
+(2,1), 
+(3,1),
+(4,1),
+(2,2);
 
+Insert into Paciente(dni,nombre,apellido,email,contrasenia,telefono,direccion,obraSocial) values
+(44798570,'Marcelo Fabrizio','Lombardo','fabiziomarcelolombardo@gmail.com',12345678,1154775943,'Av. Santa Fe 3069',1),
+(49243265,'Junior','Quiroga','quirogajunior@gmail.com',12345678,1123426346,'Monte Grande 123',2),
+(49243287,'Test','Ferdencio','test@g.c',12345678,1123326346,'Monte las palomas 123',null);
 
-Insert into Radiografia(fecha,cliente) values idRadiografia
-('2009-10-30',1),('20013-04-13',1),('2018-10-30',1),
-('2009-10-30',2),('2019-12-30',2),('2013-30-01',2),('2009-10-30',2);
+insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos)
+values (1,1,'2021-11-11 12:00:00',now(),'me duele el culo','ninguno');
 
-select * from Especialidad;
+/*
+Insert into Radiografia(fecha,paciente) values
+('2009-10-30 00:00:00',1),('20013-04-13 00:00:00',1),('2018-10-30 00:00:00',1),
+('2009-10-30 00:00:00',2),('2019-12-30 00:00:00',2),('2013-30-01 00:00:00',2),('2009-10-30 00:00:00',2);
+*/
+
+select * from Paciente;
+select * from Token;

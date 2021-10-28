@@ -244,7 +244,7 @@ def get_hora(codigo):
 
         ocupadas = []
         for hora in dics.keys():
-            ocupadas.append({'nombre':hora})
+            ocupadas.append({'id':hora,'nombre':hora})
 
         return jsonify(ocupadas),200
         #return jsonify(datos)
@@ -256,24 +256,36 @@ def get_hora(codigo):
 
 
 # Registra el turno --------------------------------------------
-@app.route('/sacar_turno/', methods=['post'])
+@app.route('/sacar_turno', methods=['Post'])
 def sacar_turno():
     try:
         # conecta con la BD y crear un cursor para hacer consultas
         con = mysql.connect()
         cursor = con.cursor()
 
-        consulta = "select idPaciente from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
-        cursor.execute(consulta)
-             
+        auth = request.headers.get('Autorization')
+        cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
+        paciente = cursor.fetchone()[0]
 
-        response = Response()
-        if datos != None:
+        consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
+                                values ({0},{1},'{2}-{3}-{4} {5}:00',now(),'{6}',null) """.format(
+                                    paciente,
+                                    request.json["medico"],
+                                    request.json["anio"],
+                                    request.json["mes"],
+                                    request.json["dia"],
+                                    request.json["hora"],
+                                    request.json["motivo"],
+                                    )
+        
+        cursor.execute(consulta)
+        con.commit()
+        
+        return jsonify({'mensaje':"turno registrado"}),200
 
     except Exception as ex:
             traceback.print_exc()
             return jsonify({'mensaje':'Error (SacarTurnoHora): hora fallida'}),500
-
 
 
 

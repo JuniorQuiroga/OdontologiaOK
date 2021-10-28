@@ -37,5 +37,5 @@ document.addEventListener('DOMContentLoaded',()=>{
     else 
     post("http://localhost:5000/register") //usamos la cookie para correr backend local     
     */
-   post("http://3.15.139.183:5000/register") //corre con local
+   post(ip+"/register") //corre con local
 })

@@ -1,5 +1,4 @@
-//const ip = "http://3.15.139.183:5000"
-const ip = "http://localhost:5000"
+
 
 // Standard javascript function to clear all the options in an HTML select element
 // In this method, you just provide the form name and dropdown box name
@@ -27,6 +26,7 @@ async function get_data(url) {
 
 // crea las opciones para la seleccion
 function gen_options(data,seleccion){
+    var element = document.getElementById(seleccion);
 
     // recorre la informacion por clave y valor
     Object.entries(data).forEach(([key, value]) => {
@@ -37,7 +37,6 @@ function gen_options(data,seleccion){
         opcion.text = value.nombre;
 
         // busca la lista de seleccion
-        var element = document.getElementById(seleccion);
         
         // agrega una nueva opcion a la lista de seleccion
         element.add(opcion,null);
@@ -50,6 +49,7 @@ function campo_vacio(campo){
     var opcion = document.createElement("option");
     opcion.value = null;
     opcion.text = "";
+
     var element = document.getElementById(campo);
     element.add(opcion,null);
 }
@@ -281,21 +281,7 @@ function get_medico() {
 
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
-    /*
-    let x = document.cookie;   //leemos las cookies
-    let cookies =x.split(";"); //las separamos
-    let local =false;
-    cookies.forEach(cookie => { //recorrer el array de cookies
-        if(cookie.split("=")[0] =="local" && cookie.split("=")[1]=="true") //si esta seteado local a true
-        local=true;    
-    })
-    if(local)
-    else
-    get_especialidad("http://3.15.139.183:5000/get_especialidad") //corre con local
-    */
-    
     campo_vacio("especialidad")
-    
     
     get_data(ip+"/get_especialidad").then(
         data_especialidad => gen_options(data_especialidad,"especialidad")

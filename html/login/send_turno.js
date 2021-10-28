@@ -1,5 +1,3 @@
-//const ip = "http://3.15.139.183:5000"
-const ip = "http://localhost:5000"
 
 async function post(postURL){
     // agarra el formulario y lo guarda en una variable
@@ -18,7 +16,9 @@ async function post(postURL){
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json',
-                        'Autorization':get_cookie("token")},
+                        //'Autorization':'e3fa97cf-e6cb-4b42-b89e-52d8061d548b'
+                        'Autorization':get_cookie("token")
+                    },
             body: jsonForm
         });
         
