@@ -18,24 +18,16 @@ def get_cursor():
     return con.cursor()
 
 
-# genera un token unico para cada usuario
-# al generarse se compara con todos los que se encuentren en la base de datos hasta el momento
-# si está repetido, se vuelve a llamar a la función repitiendo el ciclo
+# agarra un usuario, crea un token, lo sube a la base de datos y lo retorna
 def gen_token(usuario):
     con = mysql.connect()
     cursor = con.cursor()
 
     token = str(uuid.uuid4())
-
-
-    # pide todos los tokens de la base de datos y las almacena
-    # devuelve una tupla => tokens_db[n][0] n+=1
     
     cursor.execute("insert into Token  (idPaciente,token) values ({0}, '{1}') ".format(usuario,token))
     con.commit()
-    
-    # si el token esta en la tupla se llama a si mismo
-    # sino devuelve el token
+
     return token
 
 
@@ -88,20 +80,24 @@ def register():
 # para poder mostrarlos en la lista de opciones en la web
 @app.route('/get_social', methods=['Get'])
 def get_obra_social():
-    # conecta con la BD y crear un cursor para hacer consultas
-    cursor = get_cursor()
-    consulta = "select idObraSocial, nombre from Obra_Social"
-    cursor.execute(consulta)
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        cursor = get_cursor()
+        consulta = "select idObraSocial, nombre from Obra_Social"
+        cursor.execute(consulta)
 
-    # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
-    datos = cursor.fetchall()
+        # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
+        datos = cursor.fetchall()
 
-    # crea un diccionario con todos los datos de la tupla
-    obras_sociales = []
-    for fila in datos:
-        obras_sociales.append({'idObraSocial':fila[0],'nombre':fila[1]})
+        # crea un diccionario con todos los datos de la tupla
+        obras_sociales = []
+        for fila in datos:
+            obras_sociales.append({'idObraSocial':fila[0],'nombre':fila[1]})
 
-    return jsonify(obras_sociales)
+        return jsonify(obras_sociales)
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (login): obraSocial fallida'}),500
 
 
 
@@ -136,7 +132,7 @@ def Login():
 
     except Exception as ex:
             traceback.print_exc()
-            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
+            return jsonify({'mensaje':'Error (login): login fallido'}),500
  
 
 # Especialidades para turno --------------------------------------------
@@ -161,7 +157,7 @@ def get_especialidad():
 
     except Exception as ex:
             traceback.print_exc()
-            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
+            return jsonify({'mensaje':'Error (SacarEspecialidad): especialidad fallida'}),500
 
 # Especialidades para turno --------------------------------------------
 @app.route('/get_medico/<codigo>', methods=['Get'])
@@ -185,7 +181,7 @@ def get_medico(codigo):
 
     except Exception as ex:
             traceback.print_exc()
-            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
+            return jsonify({'mensaje':'Error (SacarTurnoMedico): medico fallido'}),500
 
 @app.route('/sarasa', methods=['Get'])
 def prueba():
@@ -197,25 +193,62 @@ def prueba():
 @app.route('/get_hora/<codigo>', methods=['Get'])
 def get_hora(codigo):
     try:
-        #a/m/d/ hh/mm/ medico
+        dics={
+        "09:00":"0",
+        "09:30":"0",
+        "10:00":"0",
+        "10:30":"0",
+        "11:00":"0",
+        "11:30":"0",
+        "12:00":"0",
+        "12:30":"0",
+        "13:00":"0",
+        "13:30":"0",
+        "14:00":"0",
+        "14:30":"0",
+        "15:00":"0",
+        "15:30":"0",
+        "16:00":"0",
+        "16:30":"0",
+        "17:00":"0",
+        "17:30":"0",
+        "18:00":"0",
+        }
+        horasO=[]
+
+        #a/m/d/ medico
         codigo_s = codigo.split("-")
-        
         
         # conecta con la BD y crear un cursor para hacer consultas
         #con = mysql.connect(use)
         cursor = get_cursor()
-        consulta = "SELECT EXTRACT(DAY FROM fechaAgenda) AS dia FROM Turno where medico={5} && fechaAgenda='{0}/{1}/{2} {3}:{4}'".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3],codigo_s[4],codigo_s[5])
+        #devuelve los horarios ocupados
+        consulta="select extract(hour from fechaAgenda),extract(minute from fechaAgenda)  from Turno where medico={3} and date(fechaAgenda) ='{0}/{1}/{2}';".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3])
+        #consulta = "SELECT EXTRACT(DAY FROM fechaAgenda) AS dia FROM Turno where medico={5} && fechaAgenda='{0}/{1}/{2} {3}:{4}'".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3],codigo_s[4],codigo_s[5])
         cursor.execute(consulta)
 
         # gurda la respuesta de la consulata en una tupla 
-        datos = cursor.fetchone()
+        datos = cursor.fetchall()
         print(datos)
+        for fila in datos: #pasamos la tupla datos a la lista horasO
+            horasO.append(fila)
 
+        for turno in horasO: #quitamos de dics las horasO
+            if turno[1] == 0:
+                dics.pop("{0}:{1}0".format(turno[0],turno[1]))
+            else:
+                dics.pop("{0}:{1}".format(turno[0],turno[1]))
+
+        ocupadas = []
+        for k in dics.keys():
+            ocupadas.append({'hora':k})
+
+        return jsonify({'horas ocupadas':ocupadas})
         #return jsonify(datos)
 
     except Exception as ex:
             traceback.print_exc()
-            return jsonify({'mensaje':'Error (Register): registro fallido'}),500
+            return jsonify({'mensaje':'Error (SacarTurnoHora): hora fallida'}),500
 
 
 

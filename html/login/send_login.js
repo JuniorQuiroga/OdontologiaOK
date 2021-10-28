@@ -1,3 +1,6 @@
+//const ip = "http://3.15.139.183:5000"
+const ip = "http://localhost:5000"
+
 async function post(postURL){
     // agarra el formulario y lo guarda en una variable
     const postData = document.getElementById("form");
@@ -47,7 +50,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     else 
     post("http://localhost:5000/login") //usamos la cookie para correr backend local     
     */
-   post("http://3.15.139.183:5000/login") //corre con local
+   post(ip+"/login") //corre con local
    
     
     

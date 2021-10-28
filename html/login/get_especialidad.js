@@ -1,4 +1,5 @@
-const ip= "localhost";
+//const ip = "http://3.15.139.183:5000"
+const ip = "http://localhost:5000"
 
 // Standard javascript function to clear all the options in an HTML select element
 // In this method, you just provide the form name and dropdown box name
@@ -44,6 +45,14 @@ function gen_options(data,seleccion){
 }
 
 
+function campo_vacio(campo){
+    // crea una opcion y le asigna los valores recibidos
+    var opcion = document.createElement("option");
+    opcion.value = null;
+    opcion.text = "";
+    var element = document.getElementById(campo);
+    element.add(opcion,null);
+}
 
 // NO GENERALES -----------------------------------------------------------------------
 
@@ -53,62 +62,69 @@ function get_medico() {
     var select = document.getElementById('especialidad');
     // agrega un listener de cambio -> cuando el valor cambia ejecuta la funcion
     select.addEventListener('change',
-
+    
     // llama a la api y pide los doctores que coincidan con la especialidad
     function(){
         ClearOptionsAlt("form","medico");
+        campo_vacio("medico")
         // guarda la id de la opcion seleccionada 
         var selectedOption = this.options[select.selectedIndex];
         
         // llamamos a la api pasando como codigo la id de especilidad seleccionada
         // devuelve id y nombres de los medicos de la especialidad seleccionada
-        get_data("http://3.15.139.183:5000/get_medico/"+selectedOption.value+"").then(
+        get_data(ip+"/get_medico/"+selectedOption.value+"").then(
             data => gen_options(data,"medico")
-        )
-        //genera opciones para medico segun lo recibido
-    });
-}
-
-
-function anio(){
-    var fecha = new Date();
-    var anio = fecha.getFullYear();
-    
-    
-    // crea las opciones de año
-    for(var i= 0;i<2;i++){
-        // crea una opcion y le asigna los valores recibidos
-        var opcion = document.createElement("option");
-        opcion.value = anio+i;
-        opcion.text = anio+i;
-        
-        // busca la lista de seleccion
-        var element = document.getElementById("anio");
-        
-        // agrega una nueva opcion a la lista de seleccion
-        element.add(opcion,null);
+            )
+            //genera opciones para medico segun lo recibido
+        });
     }
-}
-
-function mes(){
-    var fecha = new Date();
-    var mes = fecha.getMonth();
     
-    // agarra el select de año
-    var select = document.getElementById('anio');
     
-    // agrega un listener de cambio -> cuando el valor cambia ejecuta la funcion
-    select.addEventListener('change',
     
-    // genera las opciones dependiendo del año anteriormente elegido
-    function(){
-        //limpia la lista
+    function anio(){
+        var fecha = new Date();
+        var anio = fecha.getFullYear();
+        
+        ClearOptionsAlt("form","anio");
+        campo_vacio("anio")
+        
+        // crea las opciones de año
+        for(var i= 0;i<2;i++){
+            // crea una opcion y le asigna los valores recibidos
+            var opcion = document.createElement("option");
+            opcion.value = anio+i;
+            opcion.text = anio+i;
+            
+            // busca la lista de seleccion
+            var element = document.getElementById("anio");
+            
+            // agrega una nueva opcion a la lista de seleccion
+            element.add(opcion,null);
+        }
+    }
+    
+    function mes(){
+        var fecha = new Date();
+        var mes = fecha.getMonth();
+        
         ClearOptionsAlt("form","mes");
-
-        // guarda el año de la opcion seleccionada 
-        var anio = this.options[select.selectedIndex];
-
-        //si el año es el actual genera los meses desde el actual al fin de año
+        campo_vacio("mes")
+        
+        // agarra el select de año
+        var select = document.getElementById('anio');
+        
+        // agrega un listener de cambio -> cuando el valor cambia ejecuta la funcion
+        select.addEventListener('change',
+        
+        // genera las opciones dependiendo del año anteriormente elegido
+        function(){
+            //limpia la lista
+            ClearOptionsAlt("form","mes");
+            
+            // guarda el año de la opcion seleccionada 
+            var anio = this.options[select.selectedIndex];
+            
+            //si el año es el actual genera los meses desde el actual al fin de año
             if(anio.value == fecha.getFullYear()){
                 for(var i=mes+1; i<13 ;i++){
                     var opcion = document.createElement("option");
@@ -137,15 +153,18 @@ function mes(){
                     element.add(opcion,null);
                 }
             }
-        //genera opciones para medico segun lo recibido
-    });
+            //genera opciones para medico segun lo recibido
+        });
+        
+    }   
     
-}   
-
-function dia(){
-    
+    function dia(){
+        
         // agarra el select de mes
         var select = document.getElementById('mes');
+        
+        ClearOptionsAlt("form","dia");
+        campo_vacio("dia")
         
         // agrega un listener de cambio -> cuando el valor cambia ejecuta la funcion
         select.addEventListener('change',
@@ -154,7 +173,7 @@ function dia(){
         function(){
             //limpia la lista
             ClearOptionsAlt("form","dia");
-
+            
             // guarda el valor de año
             var anio_s = document.getElementById('anio');
             
@@ -167,7 +186,7 @@ function dia(){
                 for(var i=1; i<29 ;i++){
                     var f = new Date(a, mes.value-1, i);
                     var d = f.toDateString();
-
+                    
                     if(!(d.includes("Sat") || d.includes("Sun"))){
                         var opcion = document.createElement("option");
                         opcion.value = i;
@@ -185,10 +204,10 @@ function dia(){
                 // si el mes es uno de estos es menor a 31
                 if(mes.value == 4 || mes.value == 6 || mes.value == 9 || mes.value == 11){
                     for(var i=1; i<31 ;i++){
-
+                        
                         var f = new Date(a, mes.value-1, i);
                         var d = f.toDateString();
-    
+                        
                         if(!(d.includes("Sat") || d.includes("Sun"))){
                             var opcion = document.createElement("option");
                             opcion.value = i;
@@ -200,14 +219,14 @@ function dia(){
                             // agrega una nueva opcion a la lista de seleccion
                             element.add(opcion,null);
                         }
-
+                        
                     }
                 }
                 else{
                     for(var i=1; i<32 ;i++){
                         var f = new Date(a, mes.value-1, i);
                         var d = f.toDateString();
-
+                        
                         if(!(d.includes("Sat") || d.includes("Sun"))){
                             var opcion = document.createElement("option");
                             opcion.value = i;
@@ -223,52 +242,40 @@ function dia(){
                 }
             }
         });
-    
-}
-
-function hora(){
-    var anio_s = document.getElementById('anio').value;
-    var mes_s = document.getElementById('mes').value;
-    var dia_s = document.getElementById('dia').value;
-   
-    var medico_s = document.getElementById('medico');
-    var med = medico_s.options[medico_s.selectedIndex].value;
-    var cont = [9,0];
-    //9 am a 6 pm
-
-    console.log(cont);
-    
-    for(var i=0; i<14 ;i++){
-        var string = ""+anio_s+"-"+mes_s+"-"+dia_s+"-"+cont[0]+"-"+cont[1]+"-"+med+"";
-        var respuesta = get_data("http://3.15.139.183:5000/get_hora/"+string+"")
         
-        console.log(cont);
-        // consultar => null => se hace 
-        // mostrar hora
-            // sumar 30 a cont
-
-        // recorre los turnos y sus intervalos horarios 
-        // y muestra los que no tengan un turno asignados
-        if(respuesta == null){
-            var opcion = document.createElement("option");
-            opcion.value = cont;
-            opcion.text = cont;
-            
-            // busca la lista de seleccion
-            var element = document.getElementById("hora");
-            
-            // agrega una nueva opcion a la lista de seleccion
-            element.add(opcion,null);
-        }
-        cont[1]+=30
-        if(cont[1]==60){
-            cont[0]+=1;
-            cont[1]=0;
-        }
-    
     }
     
+    function hora(){
+        var anio_s = document.getElementById('anio').value;
+        var mes_s = document.getElementById('mes').value;
+        var dia_s = document.getElementById('dia').value;
+        
+        var medico_s = document.getElementById('medico');
+        var med = medico_s.options[medico_s.selectedIndex].value;
+        
+        ClearOptionsAlt("form","hora");
+        campo_vacio("hora")
     
+
+    var string = ""+anio_s+"-"+mes_s+"-"+dia_s+"-"+med+"";
+    
+    get_data(ip+"/get_hora/"+string+"").then(
+        data => gen_options(data,"hora")
+        )
+        
+        /*
+        //crea una opcion por cada hora dispobile
+        var opcion = document.createElement("option");
+        opcion.value = hora;
+        opcion.text = hora;
+        
+        // busca la lista de seleccion
+        var element = document.getElementById("hora");
+        
+        // agrega una nueva opcion a la lista de seleccion
+        element.add(opcion,null)    
+    }
+    */   
 }
 
 
@@ -288,10 +295,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     else
     get_especialidad("http://3.15.139.183:5000/get_especialidad") //corre con local
     */
-   
-    get_data("http://3.15.139.183:5000/get_especialidad").then(
+    
+    campo_vacio("especialidad")
+    
+    
+    get_data(ip+"/get_especialidad").then(
         data_especialidad => gen_options(data_especialidad,"especialidad")
-        )
+    );
+
+    
     get_medico()
     
     med =document.getElementById("medico")
@@ -300,9 +312,13 @@ document.addEventListener('DOMContentLoaded',()=>{
         anio();
         mes();
         dia();
-        hora();
     });
-
+    
+    d =document.getElementById("dia")
+    d.addEventListener('change',
+    function gen_dia(){ 
+        hora() 
+    });
 
 })//conceptualmente esta mal, pero nos sirve para lo que hacemos.
 
