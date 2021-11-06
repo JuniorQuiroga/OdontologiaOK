@@ -21,10 +21,13 @@ async function post(postURL){
         });
         
         // espera por la respuesta del servidor
-        const result = await response.json();
-        if (result['loged']==true){
+        const respuesta = await response.json();
+        if (respuesta['loged']==true){
             //document.cookie = response.headers["set-cookie"]
-            window.location.replace("./logueadoPaciente.html");
+            if(respuesta['paciente']==true)
+                window.location.replace("../paciente/paciente.html");
+            else
+                window.location.replace("../medico/medico.html");
         }
         else{
             window.location.replace("./login.html");

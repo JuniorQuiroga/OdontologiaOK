@@ -91,6 +91,13 @@ primary key(idPaciente,token),
 foreign key (idPaciente) references Paciente(idPaciente)
 );
 
+create table Token_Medico(
+idMedico int,
+token varchar(36),
+primary key(idMedico,token),
+foreign key (idMedico) references Medico(idMedico)
+);
+
 insert into Especialidad(nombre) values 
 ("Periodoncia"),
 ("Prostodoncia"),
@@ -184,6 +191,9 @@ Insert into Radiografia(fecha,paciente) values
 ('2009-10-30 00:00:00',1),('20013-04-13 00:00:00',1),('2018-10-30 00:00:00',1),
 ('2009-10-30 00:00:00',2),('2019-12-30 00:00:00',2),('2013-30-01 00:00:00',2),('2009-10-30 00:00:00',2);
 */
-
+use Centro_Odontologico;
 select * from Paciente;
+select * from Medico;
 select * from Token;
+select * from Turno;
+select idPaciente from Token where token = 'e3fa97cf-e6cb-4b42-b89e-52d8061d548b';

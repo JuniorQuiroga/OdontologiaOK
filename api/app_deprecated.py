@@ -15,7 +15,7 @@ def getCursor():
         return con.cursor()
 
 #consulta especialidades
-@app.route('192.168.1.107:5000/especialidades/', methods=['GET'])
+@app.route('/especialidades/', methods=['GET'])
 def VerEspecialidades():
         try:
                 cursor = getCursor()
