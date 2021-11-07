@@ -2,7 +2,7 @@
     <head>
         <link rel="stylesheet" href="../css/formStyles.css">
         <link rel="stylesheet" href="../css/prueba.css">
-        <script type="text/javascript" src="get_turno_paciente.js"></script>
+        <script type="text/javascript" src="get_delete_turno.js"></script>
         <script type="text/javascript" src="../scripts/config.js"></script>
         <script type="text/javascript" src="../scripts/verificar_cookie.js"></script>
     </head>
@@ -12,23 +12,15 @@
                 <u1>
                     <li><a href="../index.html">Inicio</a></li>
                     <li><a href="#">Nuestro Equipo</a></li>
-                    <li><a>Sacar turno</a></li>
-
+                    <li><a href="./sacar_turno.html">Sacar turno</a></li>
                 </u1>
             </nav>
         </header>
         
         <div>
-            <table id="turnos"></table>
-            <tr>
-                <th>Fecha</th>
-                <th>Motivo</th>
-                <th>Requisitos</th>
-                <th>Editar</th>
-                <th>
-                    <button onclick="cancelar_turno()">cancelar</button>
-                </th>
-            </tr>
+            <form>
+                <table id="turnos"></table>
+            </form>
         </div>
     </body>
 </html>

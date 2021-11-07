@@ -32,9 +32,6 @@ async function post(postURL){
         else{
             window.location.replace("./login.html");
         }
-
-
-        console.log(result);
     });
 }
 

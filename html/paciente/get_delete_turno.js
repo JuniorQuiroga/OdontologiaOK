@@ -19,28 +19,43 @@ async function pedir_turnos(url) {
     return data;
 }
 
-async function cancelar_turno(){
-    var rowId = event.target.parentNode.parentNode.id;
-    //this gives id of tr whose button was clicked
-    var data = document.getElementById(rowId).querySelectorAll(".row-data"); 
-    /*returns array of all elements with 
-    "row-data" class within the row with given id*/
+async function cancelar_turno(event){
+    console.log(event.parentNode.parentNode.id);
+    fila = document.getElementById(event.parentNode.parentNode.id);
+    fecha = fila.cells[0].textContent.split(" ");
+    
+    var string = fecha[0]+"-"+fecha[1]+"-"+fecha[2]+";"+fecha[3]
 
-    var name = data[0].innerHTML;
-    var age = data[1].innerHTML;
-
-    const response = await fetch(ip+"/cancelar_turno_paciente/",{
+    const response = await fetch(ip+"/cancelar_turno_paciente/"+string,{
         mode: 'cors',
-        method: 'DElETE',
+        method: 'delete',
         credentials: 'include',
         headers:{'Content-Type': 'application/json',
-                'Autorization':get_cookie("token")
-                }
-    });
+        'Autorization':get_cookie("token")
+            }
+        }
+    );
+    if (response != null){
+        window.location.replace("./paciente.html");
+    }
+};
+    /*
+    var rowId = e.target.parentNode.parentNode.id;
+    //this gives id of tr whose button was clicked
+    var dat = document.getElementById(rowId).querySelectorAll(".row-data"); 
+    /*returns array of all elements with 
+    console.log(rowId+" "+dat);
     
-    var data = await response.json();
-    console.log(data)
-}
+    var name = dat[0].innerHTML;
+    var age = dat[1].innerHTML;
+    
+});
+
+var data = await response.json();
+console.log(data)
+
+   "row-data" class within the row with given id
+*/
 
 
 function mostrar_turnos(data){
@@ -64,7 +79,7 @@ function mostrar_turnos(data){
                     <td>${fila.requisitos}</td>
                     <td>editar</td>         
                     <td>
-                        <input type="button" value="cancelar" onclick="cancelar_turno()"/>
+                        <input type="button" value="cancelar" onclick="cancelar_turno(this)"/>
                     </td>         
                 </tr>`;
         i+=1

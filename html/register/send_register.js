@@ -19,23 +19,14 @@ async function post(postURL){
         
         // espera por la respuesta del servidor
         const result = await response.json();
+        if(result != null){
+            window.location.replace("../login/login.html");
+        }
         console.log(result);
     });
 }
 
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
-    let x = document.cookie;   //leemos las cookies
-    let cookies =x.split(";"); //las separamos
-    /*let local =false;
-
-    cookies.forEach(cookie => { //recorrer el array de cookies
-        if(cookie.split("=")[0] =="local" && cookie.split("=")[1]=="true") //si esta seteado local a true
-            local=true; 
-    })
-    if(local)
-    else 
-    post("http://localhost:5000/register") //usamos la cookie para correr backend local     
-    */
    post(ip+"/register") //corre con local
 })

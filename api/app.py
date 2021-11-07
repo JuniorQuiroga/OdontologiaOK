@@ -1,11 +1,14 @@
 from flask import Flask, json, jsonify, request, Response
-
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 from config import config
 import uuid
-from http import cookies
+
 import traceback
+import smtplib
+import random
+import string
+import re
 
 app = Flask(__name__)
 cors = CORS(app,supports_credentials=True)
@@ -38,6 +41,75 @@ def gen_token(usuario,tipo):
 
     # retorna la clave
     return token
+
+
+
+# Mandar codigo de recuperacion de contrasenia --------------------------
+@app.route('/mandarCodigo', methods=['POST'])
+def mandarCodigo():
+    length_of_string = 8
+    codigo=(''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length_of_string)))
+
+    gmail_user = 'mailCentroOdontologico@gmail.com'
+    gmail_password = 'papaya_2003'
+
+    sent_from = gmail_user
+    to = 'fabriziomarcelolombardo@gmail.com'
+    subject = 'OMG Super Important Message'
+    body = "Su codigo es: "+codigo
+
+    email_text = """\
+    From: %s
+    To: %s
+    Subject: %s
+
+    %s
+    """ % (sent_from, ", ".join(to), subject, body)
+
+    with open("fabriziomarcelolombardo@gmail.com.txt","w") as usuario:
+        linea=str(to)+";"+str(codigo)
+        usuario.write(linea)
+
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(gmail_user, gmail_password)
+        server.sendmail(sent_from, to, email_text)
+        server.close()
+
+        return jsonify("El mail se mando bien")
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error al mandar el mail'})
+
+
+#Actualiza la contrasenia-------------------------------------------
+@app.route('/cambiar', methods=['POST'])
+def ActualizarContrasenia():
+    try:
+        con = mysql.connect()
+        cursor = con.cursor()
+        vari=[]
+        with open("fabriziomarcelolombardo@gmail.com.txt","r") as usuario:
+            lista= usuario.readlines()
+        r=str(lista).split(";")    
+        mail=r[0]
+        codigo=r[1]
+        mail = re.sub("\[|\'|","",mail)
+        codigo = re.sub("\]|\'|","",codigo)
+            
+        if(codigo==request.json['codigo']):
+            consulta = "update Paciente set contrasenia  = '{0}' where email = '"+mail+"'".format(request.json['contrasenia'])
+            cursor.execute(consulta)
+            con.commit()
+            return jsonify({'mensaje':'Contrasenia actualizada exitosamente'})
+        else:
+            return jsonify({'mensaje':'Codigo incorrecto'})
+
+    except Exception as ex:
+        traceback.print_exc()  
+        return jsonify({'mensaje':'Error actualizar contrasenia'})
 
 
 
@@ -117,7 +189,7 @@ def register():
 def Login():
     try:
         # conecta con la BD y crear un cursor para hacer consultas
-        # se verifica si la cuenta y la contraseña son de un medico
+        # se verifica si la cuenta y la contrasenia son de un medico
         cursor = get_cursor()
         consulta = "select idMedico from Medico where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
         cursor.execute(consulta)
@@ -138,7 +210,7 @@ def Login():
             response.status_code = 200
 
         else:
-            # se verifica si la cuenta y la contraseña son de un paciente
+            # se verifica si la cuenta y la contrasenia son de un paciente
             consulta = "select idPaciente from Paciente where email = '{0}' and contrasenia = '{1}'".format(request.json["email"],request.json["contrasenia"])
             cursor.execute(consulta)
             datos=cursor.fetchone()
@@ -389,13 +461,28 @@ def cancelar(codigo):
         cursor = con.cursor()
 
         auth = request.headers.get('Autorization')
-        print(auth)
         cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
         paciente = cursor.fetchone()
         
-        consulta = "DELETE FROM Turno WHERE idPaciente = {0}".format(paciente[0])
-        cursor.execute(consulta)
+        # formateo de fecha y hora
+        codigo = codigo.split(";")
+        codigo[0] = codigo[0].split("-")
+        codigo[0] = codigo[0][2]+"-"+codigo[0][1]+"-"+codigo[0][0]
+        
+        if len(str(codigo[1].split(":")[0]))==1:
+            if codigo[1].split(":")[1] == "0":
+                codigo = "{0} 0{1}:0{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
+            else:
+                codigo = "{0} 0{1}:{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
+        else:
+            if codigo[1].split(":")[1] == "0":
+                codigo = "{0} {1}:0{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
+            else:
+                codigo = "{0} {1}".format(codigo[0],codigo[1])
+        
+        cursor.execute("DELETE FROM Turno WHERE paciente = {0} and fechaAgenda = '{1}'".format(paciente[0],codigo))
         con.commit()
+        con.close()
         
         # se envia al frontend en forma de JSON
         return jsonify({'mensaje':'Turno cancelado'}),200

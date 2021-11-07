@@ -18,7 +18,14 @@
 
 #configuracion y cache
 config.py
+app_deprecated.py
+test.py
+x.py
+script.js
+config.js
+
 # '/' => en relaccion a la ubicacion de .gitignore
+/html/deprecated
 /__pycache__
 /api/__pycache__
 /api/.vscode
