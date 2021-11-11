@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="../css/formStyles.css">
         <link rel="stylesheet" href="../css/prueba.css">
-        <script type="text/javascript" src="get_turno.js"></script>
+        <script type="text/javascript" src="gen_turno.js"></script>
         <script type="text/javascript" src="send_turno.js"></script>
         <script type="text/javascript" src="../scripts/config.js"></script>
         <script type="text/javascript" src="../scripts/verificar_cookie.js"></script>
+        <!--calendario-->
+        <link rel="stylesheet" href="../scripts/jquery_base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
     </head>
+
     <body>
         <header>
             <nav class="menu">
@@ -23,43 +30,53 @@
             <form id="form">
                 <div class="Inputs">
                     <div>
-                        <label>especialidad</label>
+                        <label>Especialidad</label>
                         <select required name="especialidad" id="especialidad">
                         </select>
                     </div>
                     
                     <div>
-                        <label>medico</label>
-                        <select required name="medico" id="medico">
+                        <label>Medico</label>
+                        <select required disabled name="medico" id="medico">
                         </select>
                     </div>
                     
                     <div>
-                        <label>año</label>
-                        <select required name="anio" id="anio">
-                        </select>
-                    </div>
-                    <div>
-                        <label>mes</label>
-                        <select required name="mes" id="mes">
-                        </select>
-                    </div>
-                    <div>
-                        <label>dia</label>
-                        <select required name="dia" id="dia">
-                        </select>
-                    </div>
-                    <div>
-                        <label>hora</label>
-                        <select required name="hora" id="hora">
-                        </select>
+                        <label>Fecha</label>
+                        <input required disabled type="text" name="fecha" id="datepicker">
                     </div>
 
-                    <input required name="motivo" id="motivo" type="text" placeholder="motivo">
+                    <div>
+                        <label>Hora</label>
+                        <select required disabled name="hora" id="hora">
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label>Motivo</label>
+                        <input required name="motivo" id="motivo" type="text" >
+                    </div>
                 </div>
                 
                 <input type="submit" class="botones" value="Agendar Turno"></button>
             </form>
+            <!--div>
+                <label>año</label>
+                <select required name="anio" id="anio">
+                </select>
+            </div>
+            <div>
+                <label>mes</label>
+                <select required name="mes" id="mes">
+                </select>
+            </div>
+            <div>
+                <label>dia</label>
+                <select required name="dia" id="dia">
+                </select>
+            </div>
+            
+        -->
         </div>
     </body>
 </html>
