@@ -1,7 +1,7 @@
-
 // crea las opciones para la seleccion
 function gen_options(data,seleccion){
     var element = document.getElementById(seleccion);
+
     // recorre la informacion por clave y valor
     Object.entries(data).forEach(([key, value]) => {
         
@@ -45,19 +45,16 @@ function openForm(event) {
     document.getElementById("myForm").style.display = "block";
     var fila = document.getElementById(event.parentNode.parentNode.id);
     var turno = fila.cells[0].textContent;
-    var fecha = document.getElementById('datepicker').value;
+    const postData = document.getElementById("form");
     
-    $("#datepicker").on("change", function(){
-        
-        request_api(ip+"/get_horas_modificar/"+turno+"_"+fecha,"get").then(data => {
+    $("#datepicker").on("change", function() {
+        var fecha = document.getElementById('datepicker').value;
+        request_api(ip+"/get_horas_modificar/"+turno+"_"+fecha).then(data => {
             gen_options(data,"hora")
         })
-        
         document.getElementById("hora").disabled = false;
-    }
-    );
+    });
 }
-    
 
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
@@ -65,6 +62,7 @@ function closeForm() {
 
 
 function mostrar_turnos(data){
+    console.log(data);
     let tabla = 
         `<tr>
           <th>idTurno</th>
