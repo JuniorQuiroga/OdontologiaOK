@@ -35,7 +35,19 @@ html{
 	color: rgb(65, 65, 65);
 }
 
-.Inputs input,select{
+.Inputs input[type=button]{
+	width: 100%;
+	border-radius: 4px;
+	
+	padding: 10px;
+	border: 1px solid #ffffff;
+	margin: 8px auto;
+	
+	font-family: 'calibri';
+	font-size: 18px;
+}
+
+.Inputs select,input{
 	width: 100%;
 	border-radius: 4px;
 	

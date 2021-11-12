@@ -16,14 +16,18 @@ async function post(postURL){
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json',
-                        //'Autorization':'e3fa97cf-e6cb-4b42-b89e-52d8061d548b'
-                        'Autorization':get_cookie("token")
+                        'Autorization':token
                     },
             body: jsonForm
         });
         
         // espera por la respuesta del servidor
         const result = await response.json();
+	if (result!= null){
+		alert("turno registrado");
+		window.location.replace("../paciente/sacar_turno.html");
+	}
+		
         console.log(result);
     });
 }

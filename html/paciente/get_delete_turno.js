@@ -1,13 +1,35 @@
+
+// crea las opciones para la seleccion
+function gen_options(data,seleccion){
+    var element = document.getElementById(seleccion);
+    // recorre la informacion por clave y valor
+    Object.entries(data).forEach(([key, value]) => {
+        
+        var opcion = document.createElement("option");
+        if(value.ocupado == "1")
+            opcion.disabled = true
+        // crea una opcion y le asigna los valores recibidos
+        opcion.value = value.id; 
+        opcion.text = value.nombre;
+
+        // busca la lista de seleccion
+        
+        // agrega una nueva opcion a la lista de seleccion
+        element.add(opcion,null);
+    });
+}
+
 // funcion que llama a la api para pedir informacion 
-async function pedir_turnos(url) {
+async function request_api(url,metodo) {
     // almacenar data de la api 
     // await = esperar a una respuesta, solo async
     const response = await fetch(url,{
         mode: 'cors',
-        method: 'get',
+        method: metodo,
         credentials: 'include',
         headers: {  'Content-Type': 'application/json',
-                    'Autorization':get_cookie("token")
+                    //'Autorization':
+                    'Autorization':token
                 }
         });
     
@@ -19,48 +41,33 @@ async function pedir_turnos(url) {
     return data;
 }
 
-async function cancelar_turno(event){
-    console.log(event.parentNode.parentNode.id);
-    fila = document.getElementById(event.parentNode.parentNode.id);
-    fecha = fila.cells[0].textContent.split(" ");
+function openForm(event) {
+    document.getElementById("myForm").style.display = "block";
+    var fila = document.getElementById(event.parentNode.parentNode.id);
+    var turno = fila.cells[0].textContent;
+    var fecha = document.getElementById('datepicker').value;
     
-    var string = fecha[0]+"-"+fecha[1]+"-"+fecha[2]+";"+fecha[3]
-
-    const response = await fetch(ip+"/cancelar_turno_paciente/"+string,{
-        mode: 'cors',
-        method: 'delete',
-        credentials: 'include',
-        headers:{'Content-Type': 'application/json',
-        'Autorization':get_cookie("token")
-            }
-        }
-    );
-    if (response != null){
-        window.location.replace("./paciente.html");
+    $("#datepicker").on("change", function(){
+        
+        request_api(ip+"/get_horas_modificar/"+turno+"_"+fecha,"get").then(data => {
+            gen_options(data,"hora")
+        })
+        
+        document.getElementById("hora").disabled = false;
     }
-};
-    /*
-    var rowId = e.target.parentNode.parentNode.id;
-    //this gives id of tr whose button was clicked
-    var dat = document.getElementById(rowId).querySelectorAll(".row-data"); 
-    /*returns array of all elements with 
-    console.log(rowId+" "+dat);
+    );
+}
     
-    var name = dat[0].innerHTML;
-    var age = dat[1].innerHTML;
-    
-});
 
-var data = await response.json();
-console.log(data)
-
-   "row-data" class within the row with given id
-*/
+function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+}
 
 
 function mostrar_turnos(data){
     let tabla = 
         `<tr>
+          <th>idTurno</th>
           <th>Fecha</th>
           <th>Motivo</th>
           <th>Requisitos</th>
@@ -71,26 +78,45 @@ function mostrar_turnos(data){
     var i=0
     // recorre cada elemento de la seccion "especialidades" del Json "data" 
     for (let fila of Object(data)) {
-        fecha = new Date(fila.fecha)
+        fecha = new Date(fila.fecha.slice(0,-4))
         
         tabla+=`<tr id="${i}">
-                    <td>${fecha.getDay()} ${fecha.getMonth()} ${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}</td>
+                    <td>${fila.idTurno}</td>
+                    <td>${fecha.getDate()} ${fecha.getMonth()+1} ${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}</td>
                     <td>${fila.motivo}</td>
                     <td>${fila.requisitos}</td>
-                    <td>editar</td>         
+                    <td>
+                        <input type="button" value="editar" onclick="openForm(this)"/>
+                    </td>
                     <td>
                         <input type="button" value="cancelar" onclick="cancelar_turno(this)"/>
                     </td>         
                 </tr>`;
         i+=1
         }
-
     document.getElementById("turnos").innerHTML = tabla;
 }
 
+
+//espera a que cargue la pagina para mostrar los turnos
+
 document.addEventListener('DOMContentLoaded',()=>{
-    pedir_turnos(ip+"/get_turno_paciente").then(
+    $(function(){
+        $("#datepicker").datepicker({
+            dateFormat: "yy-mm-dd",
+            
+            //desactiva los fines de semana
+            beforeShowDay: $.datepicker.noWeekends, 
+            minDate: 0, //minimo
+            maxDate: "+6M", //maximo
+    
+            changeMonth: true,
+            changeYear: true
+        });
+    }
+    );
+
+    request_api(ip+"/get_turno_paciente","get").then(
         data => mostrar_turnos(data)
     )
-
 })

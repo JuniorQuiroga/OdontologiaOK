@@ -80,16 +80,12 @@ function get_medico() {
 // espera a que la pagina se cargue por completo
 document.addEventListener('DOMContentLoaded',()=>{
     
-
-    
-
     campo_vacio("especialidad");
 
     get_data(ip+"/get_especialidad").then(
         data_especialidad => gen_options(data_especialidad,"especialidad")
     );
 
-    
     get_medico();
     medico = document.getElementById("medico")
     medico.addEventListener("change",function(){
