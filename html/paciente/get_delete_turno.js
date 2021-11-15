@@ -54,12 +54,14 @@ function openForm(event) {
         })
         document.getElementById("hora").disabled = false;
     });
+
+    
+    
 }
 
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
 }
-
 
 function mostrar_turnos(data){
     console.log(data);
