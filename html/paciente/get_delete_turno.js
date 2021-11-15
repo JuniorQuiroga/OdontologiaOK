@@ -1,3 +1,4 @@
+
 // crea las opciones para la seleccion
 function gen_options(data,seleccion){
     var element = document.getElementById(seleccion);
@@ -41,13 +42,17 @@ async function request_api(url,metodo) {
     return data;
 }
 
+// abre el editor de turnos
 function openForm(event) {
+    // lo muestra
     document.getElementById("myForm").style.display = "block";
+    // agarra la fila para conseguir el id turno
     var fila = document.getElementById(event.parentNode.parentNode.id);
     var turno = fila.cells[0].textContent;
-    const postData = document.getElementById("form");
     
+    // cuando la fecha cambia busca las horas de ese dia en la api
     $("#datepicker").on("change", function() {
+        
         var fecha = document.getElementById('datepicker').value;
         request_api(ip+"/get_horas_modificar/"+turno+"_"+fecha).then(data => {
             gen_options(data,"hora")
@@ -55,14 +60,21 @@ function openForm(event) {
         document.getElementById("hora").disabled = false;
     });
 
-    
-    
+    const postData = document.getElementById("form");
+    //agarra data de los inputs y los convierte en JSON para enviarlos con fetch en forma de post
+    postData.addEventListener('submit',async function(){
+        var hora = document.getElementById("hora").value;
+        var fecha = document.getElementById('datepicker').value;
+        respuesta = request_api(ip+"/editar_turno/"+fecha+"_"+hora+"_"+turno,"put")
+    });
 }
 
+// cierra el editor de turnos
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
 }
 
+// muestra los turnos en una tabla
 function mostrar_turnos(data){
     console.log(data);
     let tabla = 
@@ -98,8 +110,7 @@ function mostrar_turnos(data){
 }
 
 
-//espera a que cargue la pagina para mostrar los turnos
-
+//espera a que cargue la pagina para mostrar los turnos 
 document.addEventListener('DOMContentLoaded',()=>{
     $(function(){
         $("#datepicker").datepicker({
@@ -115,6 +126,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         });
     }
     );
+
+    
 
     request_api(ip+"/get_turno_paciente","get").then(
         data => mostrar_turnos(data)
