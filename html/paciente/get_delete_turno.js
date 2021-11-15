@@ -37,7 +37,6 @@ async function request_api(url,metodo) {
     // convierte la informacion recibida en Json
     var data = await response.json();
     
-    console.log(data)
     // genera opciones con los datos recibidos
     return data;
 }
@@ -66,10 +65,14 @@ function openForm(event) {
 
     const postData = document.getElementById("form");
     //agarra data de los inputs y los convierte en JSON para enviarlos con fetch en forma de post
-    postData.addEventListener('submit',async function(){
+    postData.addEventListener('submit',async function(e){
+        e.preventDefault();
         var hora = document.getElementById("hora").value;
         var fecha = document.getElementById("datepicker").value;
-        respuesta = request_api(ip+"/editar_turno/"+fecha+"_"+hora+"_"+turno,"put")
+        var respuesta = await request_api(ip+"/editar_turno/"+fecha+"_"+hora+"_"+turno,"put")
+        if(respuesta["mensaje"] == "turno editado con exito" ){
+            window.location.reload();
+        }
     });
 }
 
@@ -78,12 +81,12 @@ function closeForm() {
     document.getElementById("myForm").style.display = "none";
 }
 
-function cancelar_turno(event){
+async function cancelar_turno(event){
 
     var fila = document.getElementById(event.parentNode.parentNode.id);
     var turno = fila.cells[0].textContent;
-    var respuesta = request_api(ip+"/cancelar_turno_paciente/"+turno,"delete")
-    if(respuesta = 'Turno cancelado'){
+    var respuesta = await request_api(ip+"/cancelar_turno_paciente/"+turno,"delete")
+    if(respuesta["mensaje"] == 'Turno cancelado'){
         alert("se cancelo el turno correctamente")
     }
     else{
