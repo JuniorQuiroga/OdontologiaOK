@@ -42,6 +42,10 @@ async function request_api(url,metodo) {
     return data;
 }
 
+
+
+// -------- NO GENERAL -----------------------------------
+
 // abre el editor de turnos
 function openForm(event) {
     // lo muestra
@@ -64,7 +68,7 @@ function openForm(event) {
     //agarra data de los inputs y los convierte en JSON para enviarlos con fetch en forma de post
     postData.addEventListener('submit',async function(){
         var hora = document.getElementById("hora").value;
-        var fecha = document.getElementById('datepicker').value;
+        var fecha = document.getElementById("datepicker").value;
         respuesta = request_api(ip+"/editar_turno/"+fecha+"_"+hora+"_"+turno,"put")
     });
 }
@@ -72,6 +76,20 @@ function openForm(event) {
 // cierra el editor de turnos
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
+}
+
+function cancelar_turno(event){
+
+    var fila = document.getElementById(event.parentNode.parentNode.id);
+    var turno = fila.cells[0].textContent;
+    var respuesta = request_api(ip+"/cancelar_turno_paciente/"+turno,"delete")
+    if(respuesta = 'Turno cancelado'){
+        alert("se cancelo el turno correctamente")
+    }
+    else{
+        alert("error al cancelar")
+    }
+    window.location.replace("paciente.html")
 }
 
 // muestra los turnos en una tabla

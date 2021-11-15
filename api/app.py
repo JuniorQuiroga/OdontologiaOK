@@ -15,12 +15,31 @@ cors = CORS(app,supports_credentials=True)
 mysql = MySQL()
 mysql.init_app(app)
 
-
-
 # conecta con la base de datos y devuelve un cursor para hacer consultas
 def get_cursor():
     con = mysql.connect()
     return con.cursor()
+
+# recibe un usuario, crea un token, lo sube a la base de datos y lo retorna
+def gen_token(usuario,tipo):
+    con = mysql.connect()
+    cursor = con.cursor()
+
+    # genera una clave unica
+    token = str(uuid.uuid4())
+    
+    # si es paciente ingresa la clave en la tabla correspondiente
+    # sino en la de medicos
+    if tipo == 'paciente':
+        cursor.execute("insert into Token  (idPaciente,token) values ({0}, '{1}') ".format(usuario,token))
+    else: 
+        cursor.execute("insert into Token_Medico  (idMedico,token) values ({0}, '{1}') ".format(usuario,token))
+    con.commit()
+
+    # retorna la clave
+    return token
+
+
 
 
 # recibe un usuario, crea un token, lo sube a la base de datos y lo retorna
@@ -44,18 +63,18 @@ def gen_token(usuario,tipo):
 
 
 
-# Mandar codigo de recuperacion de contrasenia --------------------------
-@app.route('/mandarCodigo', methods=['POST'])
+@app.route('/mandarCodigo', methods=['POST']) #manda un codigo al mail que se ingrese
 def mandarCodigo():
-    length_of_string = 8
+    length_of_string = 8 #genera un codigo alfanumerico random de 8 caracteres
     codigo=(''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length_of_string)))
 
-    gmail_user = 'mailCentroOdontologico@gmail.com'
+    gmail_user = 'mailCentroOdontologico@gmail.com' #mail desde el que mandamos el mail
     gmail_password = 'papaya_2003'
 
+    mail= request.json['email']
     sent_from = gmail_user
-    to = 'fabriziomarcelolombardo@gmail.com'
-    subject = 'OMG Super Important Message'
+    to = mail
+    subject = 'Codigo de recuperacion'
     body = "Su codigo es: "+codigo
 
     email_text = """\
@@ -66,47 +85,73 @@ def mandarCodigo():
     %s
     """ % (sent_from, ", ".join(to), subject, body)
 
-    with open("fabriziomarcelolombardo@gmail.com.txt","w") as usuario:
-        linea=str(to)+";"+str(codigo)
-        usuario.write(linea)
-
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
-        server.login(gmail_user, gmail_password)
-        server.sendmail(sent_from, to, email_text)
+        server.login(gmail_user, gmail_password)#se loguea en gmail
+        server.sendmail(sent_from, to, email_text)#manda el mail
         server.close()
 
-        return jsonify("El mail se mando bien")
-    except Exception as ex:
+        try:
+            cursor = get_cursor()
+            consulta = "select idMedico from Medico where email = '{0}'".format(request.json["email"])
+            cursor.execute(consulta)
+
+            # gurda la respuesta de la consulata en una tupla y se convierte en un JSON
+            datos = cursor.fetchone()
+            print(datos)
+            response = Response()
+            if(datos != None):
+                # se rellena la respuesta con 
+                # el token correspondiente en un header
+                # un indicador de que se logueo con exito y que es un medico
+                response.headers['set-cookie']= "mail="+mail+"; Max-Age=3600; Path=/"
+                #response.headers['set-cookie']="codigo="+codigo+"; Max-Age=3600; Path=/"
+                response.headers['ContentType']= 'application/json'
+                response.response = json.dumps({'mail':mail})#,{'codigo':codigo})
+                response.status_code = 200
+            else:
+                consulta = "select idPaciente from Paciente where email = '{0}'".format(request.json["email"])
+                cursor.execute(consulta)
+                datos=cursor.fetchone()
+
+                # si se reciben datos se considera que es un paciente
+                if(datos != None):
+                    # se rellena la respuesta con 
+                    # el token correspondiente en un header
+                    # un indicador de que se logueo con exito y que es un paciente
+                    response.headers['set-cookie']= "mail="+mail+","+codigo+";Max-Age=3600; Path=/"
+                                            
+                    response.headers['ContentType']= 'application/json'
+                    response.response = json.dumps({'mail':mail,'codigo':codigo})
+                    response.status_code = 200
+                else:
+                    # se indica que no se logueo y un codigo de autenticacion fallida
+                    response.headers['ContentType']= 'application/json'
+                    response.response = json.dumps({'mail':mail})
+                    response.status_code = 401
+            return response
+
+        except Exception as ex:
             traceback.print_exc()
-            return jsonify({'mensaje':'Error al mandar el mail'})
+            return jsonify({'mensaje':'Error al guardar coockie'})   
 
-
+    except Exception as ex:
+        traceback.print_exc()
+        return jsonify({'mensaje':'Error al mandar el mail'})
 #Actualiza la contrasenia-------------------------------------------
-@app.route('/cambiar', methods=['POST'])
-def ActualizarContrasenia():
+@app.route('/cambiar/<codigo>', methods=['PUT'])
+def ActualizarContrasenia(codigo):
     try:
         con = mysql.connect()
         cursor = con.cursor()
-        vari=[]
-        with open("fabriziomarcelolombardo@gmail.com.txt","r") as usuario:
-            lista= usuario.readlines()
-        r=str(lista).split(";")    
-        mail=r[0]
-        codigo=r[1]
-        mail = re.sub("\[|\'|","",mail)
-        codigo = re.sub("\]|\'|","",codigo)
-            
-        if(codigo==request.json['codigo']):
-            consulta = "update Paciente set contrasenia  = '{0}' where email = '"+mail+"'".format(request.json['contrasenia'])
-            cursor.execute(consulta)
-            con.commit()
-            return jsonify({'mensaje':'Contrasenia actualizada exitosamente'})
-        else:
-            return jsonify({'mensaje':'Codigo incorrecto'})
-
+        mail= codigo.split("_")[0]
+        contra= codigo.split("_")[1]    
+        consulta = "update Paciente set contrasenia  = '"+contra+"' where email = '"+mail+"'"
+        cursor.execute(consulta)
+        con.commit()
+        return jsonify({'mensaje':'Contrasenia actualizada exitosamente'})
+    
     except Exception as ex:
         traceback.print_exc()  
         return jsonify({'mensaje':'Error actualizar contrasenia'})
@@ -302,14 +347,12 @@ def sacar_turno():
         if paciente!= None:
             # inserta un turno nuevo en la BD
             consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
-                                    values ({0},{1},'{2}-{3}-{4} {5}:00',now(),'{6}',null) """.format(
+                                    values ({0},{1},'{2} {3}:00',now(),'{4}',null) """.format(
                                         paciente[0],
                                         request.json["medico"],
-                                        request.json["anio"],
-                                        request.json["mes"],
-                                        request.json["dia"],
+                                        request.json["fecha"],
                                         request.json["hora"],
-                                        request.json["motivo"],
+                                        request.json["motivo"]
                                         )
             
             cursor.execute(consulta)
@@ -323,6 +366,7 @@ def sacar_turno():
     except Exception as ex:
             traceback.print_exc()
             return jsonify({'mensaje':'Error al registrar turno'}),500
+
 
 # Horas para turno --------------------------------------------
 @app.route('/get_hora/<codigo>', methods=['get'])
@@ -428,18 +472,17 @@ def get_turnos_paciente():
         print(auth)
         cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
         paciente = cursor.fetchone()
-        print(paciente)
 
         #if paciente != None:
         try:
             turnos_paciente = []
-            consulta = "select fechaAgenda,motivo,requisitos from Turno where paciente = {0}".format(paciente[0])
+            consulta = "select idTurno,fechaAgenda,motivo,requisitos from Turno where paciente = {0}".format(paciente[0])
             cursor.execute(consulta)
             datos = cursor.fetchall() # guarda los datos recibidos
 
             # crea una lista y guarda los datos recibidos 
             for fila in datos:
-                turnos_paciente.append({'fecha':fila[0],'motivo':fila[1],'requisitos':fila[2]})
+                turnos_paciente.append({'idTurno':fila[0],'fecha':fila[1],'motivo':fila[2],'requisitos':fila[3]})
 
         except Exception as ex:
             traceback.print_exc()
@@ -460,6 +503,7 @@ def cancelar(codigo):
         con = mysql.connect()
         cursor = con.cursor()
 
+        """
         auth = request.headers.get('Autorization')
         cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
         paciente = cursor.fetchone()
@@ -479,8 +523,11 @@ def cancelar(codigo):
                 codigo = "{0} {1}:0{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
             else:
                 codigo = "{0} {1}".format(codigo[0],codigo[1])
+
+                """
+        print("ejecutando DELETE FROM Turno WHERE idTurno = '{}'".format(codigo))
         
-        cursor.execute("DELETE FROM Turno WHERE paciente = {0} and fechaAgenda = '{1}'".format(paciente[0],codigo))
+        cursor.execute("DELETE FROM Turno WHERE idTurno = '{}'".format(codigo))
         con.commit()
         con.close()
         
@@ -491,6 +538,97 @@ def cancelar(codigo):
             traceback.print_exc()
             return jsonify({'mensaje':'Error (cancelar turno paciente): no se pudo cancelar el turno'}),500
 
+@app.route('/editar_turno/<codigo>', methods=['put'])
+def edit_turno(codigo):
+    try:
+        # turno fecha hora
+        codigo_s = codigo.split("_")
+        print(codigo_s)
+        # conecta con la BD y crear un cursor para pedir los medicos de una especialidad especifica
+        con = mysql.connect()
+        cursor = con.cursor()
+
+        cursor.execute("update Turno set fechaAgenda = '{0} {1}' where idTurno = '{2}'".format(codigo_s[0],codigo_s[1],codigo_s[2]))
+        con.commit()
+        con.close()
+        return jsonify({'mensaje':'turno editado con exito'}),200
+
+    except Exception as ex:
+        traceback.print_exc()
+        return jsonify({'mensaje':'Error (editar turno): no se pudo editar el turno'}),500
+
+
+
+@app.route('/get_horas_modificar/<codigo>', methods=['get'])
+def horas_modificar(codigo):
+    try:
+        codigo_s = codigo.split("_")
+        # diccionario que guarda todas las horas disponibles del dia
+        horas={
+        "09:00":"0",
+        "09:30":"0",
+        "10:00":"0",
+        "10:30":"0",
+        "11:00":"0",
+        "11:30":"0",
+        "12:00":"0",
+        "12:30":"0",
+        "13:00":"0",
+        "13:30":"0",
+        "14:00":"0",
+        "14:30":"0",
+        "15:00":"0",
+        "15:30":"0",
+        "16:00":"0",
+        "16:30":"0",
+        "17:00":"0",
+        "17:30":"0",
+        "18:00":"0",
+        }
+        
+        # conecta con la BD y crear un cursor para hacer consultas
+        cursor = get_cursor()
+        #devuelve los horarios ocupados  del dia y doctor especificado
+        consulta="""SELECT extract(hour FROM fechaAgenda),extract(minute FROM fechaAgenda) FROM Turno 
+                    WHERE medico = (SELECT medico from Turno WHERE idTurno = {0}) && date(fechaAgenda) = '{1}'""".format(codigo_s[0],codigo_s[1])
+        cursor.execute(consulta)
+        # gurda la respuesta de la consulta 
+        datos = cursor.fetchall()
+        
+        # lista para almacenar las horas ocupadas
+        horasO=[]
+        #pasamos la tupla datos a la lista horasO
+        for fila in datos: 
+            horasO.append(fila)
+
+        
+
+        #quitamos del diccionario horas las horasO recuperadas de la BD
+        for turno in horasO: 
+            if len(str(turno[0]))==1:
+                if turno[1] == 0:
+                    horas["0{0}:{1}0".format(turno[0],turno[1])] = "1"
+                else:
+                    horas["0{0}:{1}".format(turno[0],turno[1])] = "1"
+            else:
+                if turno[1] == 0:
+                    horas["{0}:{1}0".format(turno[0],turno[1])] = "1"
+                else:
+                    horas["{0}:{1}".format(turno[0],turno[1])] = "1"
+
+        # lista final con las horas desocupadas 
+        desocupadas = []
+        i = 0
+        for hora in horas.keys():
+            desocupadas.append({'id':hora,'nombre':hora,'ocupado':horas[hora]})
+            i+=1
+
+        # devuelve al frontend las horas desocupadas indicando que todo salio bien
+        return jsonify(desocupadas),200
+
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (Get hora turno modificar): no se pudo devolver la hora'}),500
 
 
 # ERROR 404 ------------------------------------------------------------
