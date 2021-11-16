@@ -1,3 +1,4 @@
+from itertools import cycle
 from flask import Flask, json, jsonify, request, Response
 from flask_cors import CORS
 from flaskext.mysql import MySQL
@@ -339,29 +340,54 @@ def sacar_turno():
 
         # guarda el header de autenticacion 
         # usa este para pedir la id del paciente en la BD
-        auth = request.headers.get('Autorization')
-        cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
-        paciente = cursor.fetchone()
+        auth = request.headers['Authorization']
+
+        #intenta sacar un turno con el token de paciente
+        try:
+            cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
+            paciente = cursor.fetchone()[0]
+
+            if paciente!= None:
+                # inserta un turno nuevo en la BD
+                consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
+                                        values ({0},{1},'{2} {3}:00',now(),'{4}',"ninguno") """.format(
+                                            paciente,
+                                            request.json["medico"],
+                                            request.json["fecha"],
+                                            request.json["hora"],
+                                            request.json["motivo"]
+                                            )
+        except:
+            #intenta sacar un turno con el token de medico
+            try:
+                cursor.execute("select idMedico from Token_Medico where token = '{0}'".format(auth))
+                med = cursor.fetchone()[0]
+
+                if med!= None:
+                    # auth - dni fecha hora motivo requisitos
+                    cursor.execute("select idPaciente from Paciente where dni = '{0}'".format(request.json["dni"]))
+                    paciente = cursor.fetchone()[0]
 
 
-        if paciente!= None:
-            # inserta un turno nuevo en la BD
-            consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
-                                    values ({0},{1},'{2} {3}:00',now(),'{4}',null) """.format(
-                                        paciente[0],
-                                        request.json["medico"],
-                                        request.json["fecha"],
-                                        request.json["hora"],
-                                        request.json["motivo"]
-                                        )
-            
+                    # inserta un turno nuevo en la BD
+                    consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
+                                            values ({0},{1},'{2} {3}:00',now(),'{4}','{5}') """.format(
+                                                paciente,
+                                                med,
+                                                request.json["fecha"],
+                                                request.json["hora"],
+                                                request.json["motivo"],
+                                                request.json["requisitos"]
+                                                )
+            except Exception as ex:
+                traceback.print_exc()
+                return jsonify({'mensaje':'No se pudo encontrar ni medico ni paciente'}),500
+
             cursor.execute(consulta)
             con.commit()
         
             return jsonify({'mensaje':"turno registrado"}),200
-        else:
-            traceback.print_exc()
-            return jsonify({'mensaje':"Error al registrar turno - no se encuentra paciente"}),500
+        
 
     except Exception as ex:
             traceback.print_exc()
@@ -372,9 +398,6 @@ def sacar_turno():
 @app.route('/get_hora/<codigo>', methods=['get'])
 def get_hora(codigo):
     try:
-        # informacion recibida del frontend en forma de string con formato a-m-d-medico
-        codigo_s = codigo.split("-")
-        
         # diccionario que guarda todas las horas disponibles del dia
         horas={
         "09:00":"0",
@@ -397,15 +420,31 @@ def get_hora(codigo):
         "17:30":"0",
         "18:00":"0",
         }
-        
+        auth = request.headers['Authorization']
         # conecta con la BD y crear un cursor para hacer consultas
         cursor = get_cursor()
-        #devuelve los horarios ocupados  del dia y doctor especificado
-        consulta="select extract(hour from fechaAgenda),extract(minute from fechaAgenda)  from Turno where medico={3} and date(fechaAgenda) ='{0}/{1}/{2}';".format(codigo_s[0],codigo_s[1],codigo_s[2],codigo_s[3])
+
+        # informacion recibida del frontend en forma de string con formato a-m-d-medico
+        codigo_s = codigo.split("_")
+
+        # intenta hacer un select con el codigo dividido sino usa el codigo y la autorizacion
+        try:
+            #devuelve los horarios ocupados  del dia y doctor especificado
+            consulta="select extract(hour from fechaAgenda),extract(minute from fechaAgenda)  from Turno where medico={1} and date(fechaAgenda) ='{0}';".format(codigo_s[0],codigo_s[1])
+        except:
+            try:
+                cursor.execute("select idMedico from Token_Medico where token = '{0}'".format(auth))
+                med = cursor.fetchone()[0]
+                consulta="select extract(hour from fechaAgenda),extract(minute from fechaAgenda)  from Turno where medico={1} and date(fechaAgenda) ='{0}';".format(codigo,med)
+            except Exception as ex:
+                traceback.print_exc()
+                return jsonify({'mensaje':'Error (ver hora medico): medico hora'}),500
+
         cursor.execute(consulta)
         # gurda la respuesta de la consulta 
         datos = cursor.fetchall()
         
+
         # lista para almacenar las horas ocupadas
         horasO=[]
         #pasamos la tupla datos a la lista horasO
@@ -439,28 +478,6 @@ def get_hora(codigo):
 
 
 
-# Medico - Ver turnos --------------------------------------------------
-@app.route('/get_turno_medico/<codigo>', methods=['get'])
-def get_turnos_medico(codigo):
-    try:
-        # conecta con la BD y crear un cursor para pedir los medicos de una especialidad especifica
-        cursor = get_cursor()
-        consulta = "select idMedico, nombre from Medico where especialidad={0}".format(codigo)
-        cursor.execute(consulta)
-        datos = cursor.fetchall() # guarda los datos recibidos
-
-        # crea una lista y guarda los datos recibidos 
-        especialidades = []
-        for fila in datos:
-            especialidades.append({'id':fila[0],'nombre':fila[1]})
-
-        # se envia al frontend en forma de JSON
-        return jsonify(especialidades),200
-        
-    except Exception as ex:
-            traceback.print_exc()
-            return jsonify({'mensaje':'Error (SacarTurnoHora): hora fallida'}),500
-
 # Paciente - Ver turnos --------------------------------------------------
 @app.route('/get_turno_paciente', methods=['get'])
 def get_turnos_paciente():
@@ -468,11 +485,11 @@ def get_turnos_paciente():
         # conecta con la BD y crear un cursor para pedir los medicos de una especialidad especifica
         cursor = get_cursor()
 
-        auth = request.headers.get('Autorization')
+        auth = request.headers['Authorization']
         print(auth)
         cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
         paciente = cursor.fetchone()
-
+    
         #if paciente != None:
         try:
             turnos_paciente = []
@@ -502,30 +519,6 @@ def cancelar(codigo):
         # conecta con la BD y crear un cursor para pedir los medicos de una especialidad especifica
         con = mysql.connect()
         cursor = con.cursor()
-
-        """
-        auth = request.headers.get('Autorization')
-        cursor.execute("select idPaciente from Token where token = '{0}'".format(auth))
-        paciente = cursor.fetchone()
-        
-        # formateo de fecha y hora
-        codigo = codigo.split(";")
-        codigo[0] = codigo[0].split("-")
-        codigo[0] = codigo[0][2]+"-"+codigo[0][1]+"-"+codigo[0][0]
-        
-        if len(str(codigo[1].split(":")[0]))==1:
-            if codigo[1].split(":")[1] == "0":
-                codigo = "{0} 0{1}:0{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
-            else:
-                codigo = "{0} 0{1}:{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
-        else:
-            if codigo[1].split(":")[1] == "0":
-                codigo = "{0} {1}:0{2}".format(codigo[0],codigo[1].split(":")[0],codigo[1].split(":")[1])
-            else:
-                codigo = "{0} {1}".format(codigo[0],codigo[1])
-
-                """
-        print("ejecutando DELETE FROM Turno WHERE idTurno = '{}'".format(codigo))
         
         cursor.execute("DELETE FROM Turno WHERE idTurno = '{}'".format(codigo))
         con.commit()
@@ -556,6 +549,87 @@ def edit_turno(codigo):
     except Exception as ex:
         traceback.print_exc()
         return jsonify({'mensaje':'Error (editar turno): no se pudo editar el turno'}),500
+
+
+
+# Medico - Ver turnos --------------------------------------------------
+@app.route('/get_turno_medico', methods=['get'])
+def get_turnos_medico():
+    try:
+        # conecta con la BD y crear un cursor para pedir los medicos de una especialidad especifica
+        cursor = get_cursor()
+
+        auth = request.headers['Authorization']
+        print(auth)
+        cursor.execute("select idMedico from Token_Medico where token = '{0}'".format(auth))
+        medico = cursor.fetchone()
+
+        #if paciente != None:
+        try:
+            turnos_medico = []
+            consulta = "select idTurno,fechaAgenda,motivo,requisitos from Turno where medico = {0}".format(medico[0])
+            cursor.execute(consulta)
+            datos = cursor.fetchall() # guarda los datos recibidos
+
+            # crea una lista y guarda los datos recibidos 
+            for fila in datos:
+                turnos_medico.append({'idTurno':fila[0],'fecha':fila[1],'motivo':fila[2],'requisitos':fila[3]})
+
+        except Exception as ex:
+            traceback.print_exc()
+            return jsonify({"mensaje":"Error (VerTurnosMedico): al recopilar turnos"}),500
+        
+        # se envia al frontend en forma de JSON
+        return jsonify(turnos_medico),200
+        
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error (VerTurnosMedico): no se pudieron mostrar los turnos'}),500
+
+
+
+# Registra el turno como medico
+@app.route('/sacar_turno_medico', methods=['post'])
+def sacar_turno_medico():
+    try:
+        # conecta con la BD y crear un cursor para hacer consultas
+        con = mysql.connect()
+        cursor = con.cursor()
+
+        # guarda el header de autenticacion 
+        # usa este para pedir la id del paciente en la BD
+        auth = request.headers['Authorization']
+        print(auth)
+        cursor.execute("select idMedico from Token_Medico where token = '{0}'".format(auth))
+        medico = cursor.fetchone()
+
+        cursor.execute("select idPaciente from Paciente where dni = '{0}'".format(request.json["dni"]))
+        paciente = cursor.fetchone()
+
+
+        if medico!= None:
+            # inserta un turno nuevo en la BD
+            consulta = """insert into Turno (paciente,medico,fechaAgenda,fechaTurno,motivo,requisitos) 
+                                    values ({0},{1},'{2} {3}:00',now(),'{4}','{5}') """.format(
+                                        paciente[0],
+                                        medico[0],
+                                        request.json["fecha"],
+                                        request.json["hora"],
+                                        request.json["motivo"],
+                                        request.json["requisitos"]
+                                        )
+            
+            cursor.execute(consulta)
+            con.commit()
+        
+            return jsonify({'mensaje':"turno registrado"}),200
+        else:
+            traceback.print_exc()
+            return jsonify({'mensaje':"Error al registrar turno - no se encuentra medico"}),500
+
+    except Exception as ex:
+            traceback.print_exc()
+            return jsonify({'mensaje':'Error al registrar turno'}),500
 
 
 

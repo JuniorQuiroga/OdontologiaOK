@@ -16,7 +16,7 @@ async function post(postURL){
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json',
-                        'Autorization':get_cookie("token")},
+                        'Authorization':get_cookie("token")},
             body: jsonForm
         });
         

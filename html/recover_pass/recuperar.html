@@ -19,10 +19,40 @@
 			
 			<form id="form">
                 <div class= "Inputs">
-                    <input type="password" class="Inputs" id="contrasenia" name="contrasenia" placeholder="Nueva contrase&#241;a" required="required">
-					<input type="password" class="Inputs" id="contrasenia2" name="contrasenia2" placeholder="Confirmar contrase&#241;a" required="required">
-					<input type="text" class="Inputs" id="codigo" name="codigo" placeholder="Ingrese el codigo" required="required">
+					<div>
+						<label>Nueva contrase&#241;a</label>
+						<input 	type="password" 
+								class="Inputs" 
+								id="contrasenia" 
+								name="contrasenia" 
+								placeholder="[minimo 8 caracteres]" 
+								pattern="[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]{8,}"
+								maxlength=50 minlength=8
+								required>
+					</div>
+
+					<div>
+						<label>Confirmar contrase&#241;a</label>
+						<input 	type="password" 
+								class="Inputs" 
+								id="contrasenia2" 
+								name="contrasenia2" 
+								placeholder="[minimo 8 caracteres]" 
+								pattern="[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]{8,}"
+								maxlength=50 minlength=8
+								required>
+					</div>
+
+					<div>
+						<label>Ingrese el codigo</label>
+						<input 	type="text" 
+								class="Inputs" 
+								id="codigo" 
+								name="codigo"  
+								required>
+					</div>
                 </div>
+
 				<button type="submit" class="botones">Guardar Cambios</button>
 			</form>
 			<div class="cliqueable">

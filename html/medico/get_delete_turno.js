@@ -28,10 +28,8 @@ async function request_api(url,metodo) {
         mode: 'cors',
         method: metodo,
         credentials: 'include',
-        headers: {  'Content-Type': 'application/json',
-                    //'Autorization':
-                    'Authorization':token
-                }
+        headers: { 'Content-Type': 'application/json',
+                    'Authorization':token},
         });
     
     // convierte la informacion recibida en Json
@@ -89,7 +87,7 @@ async function cancelar_turno(event){
     if(respuesta["mensaje"] != 'Turno cancelado'){
         alert("error al cancelar")
     }
-    window.location.replace("paciente.html")
+    window.location.replace("medico.html")
 }
 
 // muestra los turnos en una tabla
@@ -98,11 +96,11 @@ function mostrar_turnos(data){
     /*<th>idTurno</th>*/
     let tabla = 
         `<tr>
-          <th>Fecha y hora</th>
-          <th>Motivo</th>
-          <th>Requisitos</th>
-          <th>Editar</th>
-          <th>Cancelar</th>
+            <th>Fecha y hora</th>
+            <th>Motivo</th>
+            <th>Requisitos</th>
+            <th>Editar</th>
+            <th>Cancelar</th>
          </tr>`;
     
     var i=0
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     
 
-    request_api(ip+"/get_turno_paciente","get").then(
+    request_api(ip+"/get_turno_medico","get").then(
         data => mostrar_turnos(data)
     )
 })

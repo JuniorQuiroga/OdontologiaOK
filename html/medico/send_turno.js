@@ -16,16 +16,15 @@ async function post(postURL){
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json',
-                        'Authorization':token
-                    },
+                        'Authorization':token},
             body: jsonForm
         });
         
         // espera por la respuesta del servidor
-        const result = await response.json();
-	if (result!= null){
+        var result = await response.json();
+	if (result["mensaje"] == "turno registrado"){
 		alert("turno registrado");
-		window.location.replace("../paciente/sacar_turno.html");
+		window.location.replace("sacar_turno_medico.html");
 	}
         console.log(result);
     });

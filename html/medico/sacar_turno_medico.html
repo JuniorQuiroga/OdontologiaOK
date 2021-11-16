@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../css/formStyles.css">
+        <link rel="stylesheet" href="../css/prueba.css">
+        
+        <script type="text/javascript" src="gen_turno.js"></script>
+        <script type="text/javascript" src="send_turno.js"></script>
+        <script type="text/javascript" src="../scripts/verificar_cookie.js"></script>
+        <script type="text/javascript" src="../scripts/config.js"></script>
+        <!--calendario-->
+        <link rel="stylesheet" href="../scripts/jquery_base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <nav class="menu">
+                <u1>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="#">Nuestro Equipo</a></li>
+                    <li><a href="medico.html">Ver turnos</a></li>
+                </u1>
+            </nav>
+        </header>
+
+        <div class="general">
+            <form id="form">
+                <div class="Inputs">
+                    <div>
+                        <label>DNI de paciente</label>
+                        <input required placeholder="[56234123]" type="text" name="dni" id="dni">
+                    </div>
+
+                    <div>
+                        <label>Fecha</label>
+                        <input required disabled type="text" name="fecha" id="datepicker">
+                    </div>
+
+                    <div>
+                        <label>Hora</label>
+                        <select required disabled name="hora" id="hora">
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label>Motivo</label>
+                        <input required name="motivo" id="motivo" type="text" >
+                    </div>
+
+                    <div>
+                        <label>Requisitos</label>
+                        <input required name="requisitos" id="requisitos" type="text" >
+                    </div>
+                </div>
+                
+                <input type="submit" class="botones" value="Agendar Turno">
+            </form>
+        </div>
+    </body>
+</html>

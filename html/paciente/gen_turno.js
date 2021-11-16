@@ -9,7 +9,11 @@ async function get_data(url) {
     // almacenar data de la api 
     // await = esperar a una respuesta, solo async
     const response = await fetch(url,{
-                                mode: 'cors'});
+                                mode: 'cors',
+                                credentials: 'include',
+                                headers: { 'Content-Type': 'application/json',
+                                            'Authorization':token},
+                        });
     
     // convierte la informacion recibida en Json
     var data = await response.json();
@@ -114,7 +118,7 @@ document.addEventListener('DOMContentLoaded',()=>{
                 var fecha = document.getElementById('datepicker');
                 var med = medico_s.options[medico_s.selectedIndex].value;
         
-                get_data(ip+"/get_hora/"+fecha.value+"-"+med).then(
+                get_data(ip+"/get_hora/"+fecha.value+"_"+med).then(
                 data => gen_options(data,"hora")
                 )
 

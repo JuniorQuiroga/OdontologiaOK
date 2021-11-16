@@ -13,7 +13,8 @@ async function post(postURL){
             mode: 'cors',
             method: 'POST',
             credentials: 'include',
-            headers: {'Content-Type': 'application/json','Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json',
+            'Content-Type': 'application/json'},
             body: jsonForm
         });
         
